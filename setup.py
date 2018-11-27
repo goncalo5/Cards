@@ -30,7 +30,7 @@ class Player(pg.sprite.Sprite):
         self.draw = pg.image.load(self.image_path).convert()
         self.rect = self.image.get_rect()
         self.rect_draw = self.draw.get_rect()
-        self.rect_draw.x += 20
+        self.rect_draw.midtop = self.rect.midtop
         self.rect_draw.y += 30
         self.image.blit(self.draw, self.rect_draw)
         # self.image = pg.transform.scale(self.image, CARD.get('size'))
@@ -51,8 +51,11 @@ class Player(pg.sprite.Sprite):
         if pg.time.get_ticks() - self.time_to_unpress < 300:
             return
 
+        if not self.rect.collidepoint(pg.mouse.get_pos()):
+            return
+
         if pg.mouse.get_pressed() == (1, 0, 0):
-            print(1)
+            print(self.rect.collidepoint(pg.mouse.get_pos()))
             # self.dx = -10
             self.image = pg.transform.rotate(self.image, 90 * self.is_up)
             print(self.rect)
