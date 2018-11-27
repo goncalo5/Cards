@@ -3,7 +3,18 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, CARD, BLACK
+from settings import DISPLAY, CARDS, CARD, BLACK, WHITE, RED, LIGHTBLUE
+
+
+def draw_text(screen, text, size, color, x, y, font='arial'):
+    try:
+        font = pg.font.Font(font, size)
+    except IOError:
+        font = pg.font.SysFont(font, size)
+    text_surface = font.render(str(text), True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    screen.blit(text_surface, text_rect)
 
 
 class Player(pg.sprite.Sprite):
@@ -19,6 +30,10 @@ class Player(pg.sprite.Sprite):
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
+        draw_text(self.image, CARDS[1]['name'], 20, WHITE, 50, 10)
+        draw_text(self.image, CARDS[1]['type'], 20, WHITE, 50, 100)
+        draw_text(self.image, CARDS[1]['atack'], 20, RED, 60, 180)
+        draw_text(self.image, CARDS[1]['defense'], 20, LIGHTBLUE, 80, 180)
 
     def events(self):
         self.dx = 0
@@ -29,7 +44,7 @@ class Player(pg.sprite.Sprite):
         if pg.mouse.get_pressed() == (1, 0, 0):
             print(1)
             # self.dx = -10
-            self.image = pg.transform.rotate(self.image, 90)
+            self.image = pg.transform.rotate(self.image, 90 * self.is_up)
             print(self.rect)
             print((self.rect.height - self.rect.width) * self.is_up)
             self.rect.y += (self.rect.height - self.rect.width) * self.is_up
