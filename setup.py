@@ -3,28 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-DARKBLUE = (0, 0, 100)
-YELLOW = (255, 255, 0)
-
-# Screen
-DISPLAY = {
-    'title': "My Game",
-    'tilesize': 32,
-    'width': 360,
-    'height': 480,
-    'bgcolor': DARKBLUE,
-    'fps': 30
-}
-
-# Player
-PLAYER = {
-    'layer': 2
-}
+from settings import DISPLAY, PLAYER, YELLOW
 
 
 class Player(pg.sprite.Sprite):
