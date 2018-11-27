@@ -3,29 +3,42 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, PLAYER, YELLOW
+from settings import DISPLAY, CARD, BLACK
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, game, x, y):
-        self._layer = PLAYER['layer']
+    def __init__(self, game, pos):
+        self._layer = CARD['layer']
         self.groups = game.all_sprites
         super(Player, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface((DISPLAY['tilesize'], DISPLAY['tilesize']))
-        self.image.fill(YELLOW)
+        self.image = pg.Surface((CARD['width'], CARD['height']))
+        self.image.fill(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.topleft = pos
         self.dx = 0
+        self.time_to_unpress = pg.time.get_ticks()
+        self.is_up = 1
 
     def events(self):
         self.dx = 0
-        keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT]:
-            self.dx = -5
-        if keys[pg.K_RIGHT]:
-            self.dx = 5
+        # print(pg.mouse.get_pressed())
+        if pg.time.get_ticks() - self.time_to_unpress < 300:
+            return
+
+        if pg.mouse.get_pressed() == (1, 0, 0):
+            print(1)
+            # self.dx = -10
+            self.image = pg.transform.rotate(self.image, 90)
+            print(self.rect)
+            print((self.rect.height - self.rect.width) * self.is_up)
+            self.rect.y += (self.rect.height - self.rect.width) * self.is_up
+            self.is_up *= -1
+            self.time_to_unpress = pg.time.get_ticks()
+        if pg.mouse.get_pressed() == (0, 0, 1):
+            print(1)
+            # self.dx = 10
+            self.time_to_unpress = pg.time.get_ticks()
 
     def update(self):
         self.events()
@@ -57,7 +70,7 @@ class Game(object):
     def new(self):
         # start a new game
         self.all_sprites = pg.sprite.LayeredUpdates()
-        self.player = Player(self, 100, 100)
+        self.player = Player(self, CARD['pos'])
 
     def run(self):
         # game loop - set  self.playing = False to end the game

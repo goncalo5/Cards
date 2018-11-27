@@ -11,7 +11,6 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'tilesize': 32,
     'width': 360,
     'height': 480,
     'bgcolor': DARKBLUE,
@@ -21,4 +20,22 @@ DISPLAY = {
 # Player
 PLAYER = {
     'layer': 2
+}
+
+CARD = {
+    'layer': 2,
+    'width': 120,
+    'height': 200,
+    'pos': (100, 200)
+}
+
+CARDS = {
+    1: {
+        'name': 'ze manel',
+        'type': 'human',
+        'img_folder': 'imgs',
+        'img': 'ze_manel.png',
+        'atack': 7,
+        'defense': 8
+    }
 }
