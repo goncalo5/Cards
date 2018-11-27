@@ -23,15 +23,25 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Player, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface((CARD['width'], CARD['height']))
+        self.image = pg.Surface(CARD['size'])
         self.image.fill(BLACK)
+        self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
+        self.image_path = path.join(self.image_dir, CARDS[1]['img'])
+        self.draw = pg.image.load(self.image_path).convert()
         self.rect = self.image.get_rect()
+        self.rect_draw = self.draw.get_rect()
+        self.rect_draw.x += 20
+        self.rect_draw.y += 30
+        self.image.blit(self.draw, self.rect_draw)
+        # self.image = pg.transform.scale(self.image, CARD.get('size'))
+        # self.image.set_colorkey(BLACK)
+        print(self.rect)
         self.rect.topleft = pos
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         draw_text(self.image, CARDS[1]['name'], 20, WHITE, 50, 10)
-        draw_text(self.image, CARDS[1]['type'], 20, WHITE, 50, 100)
+        draw_text(self.image, CARDS[1]['type'], 20, WHITE, 50, 150)
         draw_text(self.image, CARDS[1]['atack'], 20, RED, 60, 180)
         draw_text(self.image, CARDS[1]['defense'], 20, LIGHTBLUE, 80, 180)
 

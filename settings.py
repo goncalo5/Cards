@@ -25,6 +25,7 @@ PLAYER = {
 
 CARD = {
     'layer': 2,
+    'size': (120, 200),
     'width': 120,
     'height': 200,
     'pos': (100, 200)
@@ -34,8 +35,8 @@ CARDS = {
     1: {
         'name': 'ze manel',
         'type': 'human',
-        'img_folder': 'imgs',
-        'img': 'ze_manel.png',
+        'img_dir': 'imgs',
+        'img': 'p1_front.png',
         'atack': 7,
         'defense': 8
     }
