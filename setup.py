@@ -28,6 +28,7 @@ class Button(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Button, self).__init__(self.groups)
         self.game = game
+        self.id = kwargs.get('id')
         self.image = pg.Surface(kwargs.get('size'))
         self.image.fill(BLACK)
 
@@ -36,29 +37,44 @@ class Button(pg.sprite.Sprite):
         pos = (self.rect.width / 2, 10)
         draw_text(self.image, kwargs.get('name'), kwargs.get('font_size'),
                   kwargs.get('color'), pos)
+        self.time_to_unpress = pg.time.get_ticks()
 
     def events(self):
+        if pg.time.get_ticks() - self.time_to_unpress < 300:
+            return
+
         if not self.rect.collidepoint(pg.mouse.get_pos()):
             return
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             print(self.rect.collidepoint(pg.mouse.get_pos()))
-            creature1 = self.game.player.turned.get('ze_manel')
-            creature2 = self.game.mob.in_game.get('ze_manel')
-            if creature1 and creature2:
-                res = combat(creature1, creature2)
-                if res[0]:
-                    self.game.player.kill()
-                if res[1]:
-                    self.game.mob.kill()
+            if self.id == 'deck':
+                print('deck')
+                self.draw_a_card()
+            if self.id == 'atack':
+                creature1 = self.game.player.turned.get('ze_manel')
+                creature2 = self.game.mob.in_game.get('ze_manel')
+                if creature1 and creature2:
+                    res = combat(creature1, creature2)
+                    if res[0]:
+                        self.game.player.kill()
+                    if res[1]:
+                        self.game.mob.kill()
+            self.time_to_unpress = pg.time.get_ticks()
 
     def update(self):
         self.events()
 
+    def draw_a_card(self):
+        new_card = self.game.player.deck.pop()
+        print(new_card)
+        self.game.player.hand[new_card.id] = new_card
+        print(self.game.player.hand)
+
 
 class Card(object):
-    def __init__(self, id, **kwargs):
-        self.id = id
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id')
         self.name = kwargs.get('name')
         self.type = kwargs.get('type')
         self.atack = kwargs.get('atack')
@@ -88,7 +104,7 @@ class Cards(object):
     @classmethod
     def load_all_cards(cls):
 
-        cls.ze_manel = Card(1, **CARDS[1])
+        cls.ze_manel = Card(**CARDS['ze_manel'])
 
 
 class Mob(pg.sprite.Sprite):
@@ -98,7 +114,7 @@ class Mob(pg.sprite.Sprite):
         self.game = game
 
         self.deck = []
-        self.hand = set()
+        self.hand = {}
         self.in_game = {'ze_manel': Cards.ze_manel}
         self.turned = set()
 
@@ -109,7 +125,7 @@ class Mob(pg.sprite.Sprite):
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         for label in ['name', 'type', 'atack', 'defense']:
-            draw_text(self.image, CARDS[1][label], CARD['font_size'],
+            draw_text(self.image, CARDS['ze_manel'][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
         self.image = pg.transform.rotate(self.image, 180)
 
@@ -121,9 +137,9 @@ class Player(pg.sprite.Sprite):
         super(Player, self).__init__(self.groups)
         self.game = game
 
-        self.deck = []
-        self.hand = set()
-        self.in_game = {'ze_manel': Cards.ze_manel}
+        self.deck = [Cards.ze_manel]
+        self.hand = {}
+        self.in_game = {}
         self.turned = {}
 
         self.image = Cards.ze_manel.image
@@ -134,7 +150,7 @@ class Player(pg.sprite.Sprite):
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         for label in ['name', 'type', 'atack', 'defense']:
-            draw_text(self.image, CARDS[1][label], CARD['font_size'],
+            draw_text(self.image, CARDS['ze_manel'][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
 
     def events(self):

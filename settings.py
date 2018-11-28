@@ -19,6 +19,7 @@ DISPLAY = {
 }
 BUTTON = {
     'deck': {
+        'id': 'deck',
         'name': 'Deck',
         'size': (120, 200),
         'font_size': 40,
@@ -26,6 +27,7 @@ BUTTON = {
         'pos': (20, 200)
     },
     'atack': {
+        'id': 'atack',
         'name': 'Atack',
         'size': (100, 60),
         'font_size': 30,
@@ -69,7 +71,8 @@ CARD = {
 }
 
 CARDS = {
-    1: {
+    'ze_manel': {
+        'id': 'ze_manel',
         'name': 'ze manel',
         'type': 'human',
         'img_dir': 'imgs',
