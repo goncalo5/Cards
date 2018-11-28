@@ -24,18 +24,18 @@ def draw_text(screen, text, size, color, pos, font='arial'):
 
 
 class Button(pg.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self, game, **kwargs):
         self.groups = game.all_sprites
         super(Button, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface(BUTTON['atack']['size'])
+        self.image = pg.Surface(kwargs.get('size'))
         self.image.fill(BLACK)
 
         self.rect = self.image.get_rect()
-        self.rect.topleft = BUTTON['atack']['pos']
+        self.rect.topleft = kwargs.get('pos')
         pos = (self.rect.width / 2, 10)
-        draw_text(self.image, 'Atack', BUTTON['atack']['font_size'],
-                  BUTTON['atack']['color'], pos)
+        draw_text(self.image, kwargs.get('name'), kwargs.get('font_size'),
+                  kwargs.get('color'), pos)
 
     def events(self):
         if not self.rect.collidepoint(pg.mouse.get_pos()):
@@ -87,11 +87,6 @@ class Card(object):
 class Cards(object):
     @classmethod
     def load_all_cards(cls):
-        # cls.image = pg.Surface(CARD['size'])
-        # cls.image.fill(BLACK)
-        # cls.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
-        # cls.image_path = path.join(cls.image_dir, CARDS[1]['img'])
-        # cls.draw = pg.image.load(cls.image_path).convert()
 
         cls.ze_manel = Card(1, **CARDS[1])
 
@@ -204,7 +199,8 @@ class Game(object):
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.mob = Mob(self)
         self.player = Player(self)
-        Button(self)
+        Button(self, **BUTTON['atack'])
+        Button(self, **BUTTON['deck'])
 
     def run(self):
         # game loop - set  self.playing = False to end the game

@@ -12,28 +12,36 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 480,
+    'width': 640,
     'height': 480,
     'bgcolor': DARKBLUE,
     'fps': 30
 }
 BUTTON = {
+    'deck': {
+        'name': 'Deck',
+        'size': (120, 200),
+        'font_size': 40,
+        'color': YELLOW,
+        'pos': (20, 200)
+    },
     'atack': {
+        'name': 'Atack',
         'size': (100, 60),
         'font_size': 30,
         'color': RED,
-        'pos': (350, 300),
+        'pos': (520, 300),
     }
 }
 
 # Player
 PLAYER = {
     'layer': 2,
-    'pos': (100, 250),
+    'pos': (150, 250),
 }
 
 MOB = {
-    'pos': (100, 20)
+    'pos': (150, 20)
 }
 
 CARD = {
