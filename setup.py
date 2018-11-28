@@ -6,14 +6,14 @@ import pygame as pg
 from settings import DISPLAY, CARDS, CARD, BLACK, WHITE, RED, LIGHTBLUE
 
 
-def draw_text(screen, text, size, color, x, y, font='arial'):
+def draw_text(screen, text, size, color, pos, font='arial'):
     try:
         font = pg.font.Font(font, size)
     except IOError:
         font = pg.font.SysFont(font, size)
     text_surface = font.render(str(text), True, color)
     text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
+    text_rect.midtop = pos
     screen.blit(text_surface, text_rect)
 
 
@@ -40,10 +40,9 @@ class Player(pg.sprite.Sprite):
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
-        draw_text(self.image, CARDS[1]['name'], 20, WHITE, 50, 10)
-        draw_text(self.image, CARDS[1]['type'], 20, WHITE, 50, 150)
-        draw_text(self.image, CARDS[1]['atack'], 20, RED, 60, 180)
-        draw_text(self.image, CARDS[1]['defense'], 20, LIGHTBLUE, 80, 180)
+        for label in ['name', 'type', 'atack', 'defense']:
+            draw_text(self.image, CARDS[1][label], CARD['font_size'],
+                      CARD[label]['color'], CARD[label]['pos'])
 
     def events(self):
         self.dx = 0

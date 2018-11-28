@@ -28,7 +28,24 @@ CARD = {
     'size': (120, 200),
     'width': 120,
     'height': 200,
-    'pos': (100, 200)
+    'pos': (100, 200),
+    'font_size': 20,
+    'name': {
+        'color': WHITE,
+        'pos': (50, 10)
+    },
+    'type': {
+        'color': WHITE,
+        'pos': (50, 150)
+    },
+    'atack': {
+        'color': RED,
+        'pos': (60, 180)
+    },
+    'defense': {
+        'color': LIGHTBLUE,
+        'pos': (80, 180)
+    }
 }
 
 CARDS = {
