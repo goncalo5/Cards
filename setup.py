@@ -128,8 +128,8 @@ class Player(pg.sprite.Sprite):
 
         self.deck = []
         self.hand = set()
-        self.in_game = set()
-        self.turned = {'ze_manel': Cards.ze_manel}
+        self.in_game = {'ze_manel': Cards.ze_manel}
+        self.turned = {}
 
         self.image = Cards.ze_manel.image
         self.draw = Cards.ze_manel.draw
@@ -159,6 +159,14 @@ class Player(pg.sprite.Sprite):
             print((self.rect.height - self.rect.width) * self.is_up)
             self.rect.y += (self.rect.height - self.rect.width) * self.is_up
             self.is_up *= -1
+
+            if self.in_game.get('ze_manel'):
+                if self.turned.get('ze_manel'):
+                    self.turned.pop('ze_manel')
+                else:
+                    self.turned['ze_manel'] = Cards.ze_manel
+            print(self.turned)
+
             self.time_to_unpress = pg.time.get_ticks()
         if pg.mouse.get_pressed() == (0, 0, 1):
             print(1)
