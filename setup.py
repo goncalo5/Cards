@@ -6,9 +6,9 @@ import pygame as pg
 from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, RED
 
 
-def combat(atack1, defense1, atack2, defense2):
-    first_die = atack2 > defense1
-    second_die = atack1 > defense2
+def combat(creature1, creature2):
+    first_die = creature2.atack > creature1.defense
+    second_die = creature1.atack > creature2.defense
     return (first_die, second_die)
 
 
@@ -45,8 +45,7 @@ class Button(pg.sprite.Sprite):
             print(self.rect.collidepoint(pg.mouse.get_pos()))
             creature1 = self.game.player.creatures['ze_manel']
             creature2 = self.game.mob.creatures['ze_manel']
-            res = combat(creature1['atack'], creature1['defense'],
-                         creature2['atack'], creature2['defense'])
+            res = combat(creature1, creature2)
             if res[0]:
                 self.game.player.kill()
             if res[1]:
@@ -54,6 +53,14 @@ class Button(pg.sprite.Sprite):
 
     def update(self):
         self.events()
+
+
+class Card(object):
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name')
+        self.type = kwargs.get('type')
+        self.atack = kwargs.get('atack')
+        self.defense = kwargs.get('defense')
 
 
 class Cards(pg.sprite.Sprite):
@@ -64,6 +71,8 @@ class Cards(pg.sprite.Sprite):
         cls.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
         cls.image_path = path.join(cls.image_dir, CARDS[1]['img'])
         cls.draw = pg.image.load(cls.image_path).convert()
+
+        cls.ze_manel = Card(**CARDS[1])
 
     @classmethod
     def load_rect(cls):
@@ -98,10 +107,7 @@ class Mob(pg.sprite.Sprite):
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         self.creatures = {
-            'ze_manel': {
-                'atack': CARDS[1]['atack'],
-                'defense': CARDS[1]['defense'],
-            }
+            'ze_manel': Cards.ze_manel
         }
         for label in ['name', 'type', 'atack', 'defense']:
             draw_text(self.image, CARDS[1][label], CARD['font_size'],
@@ -134,10 +140,7 @@ class Player(pg.sprite.Sprite):
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         self.creatures = {
-            'ze_manel': {
-                'atack': CARDS[1]['atack'],
-                'defense': CARDS[1]['defense'],
-            }
+            'ze_manel': Cards.ze_manel
         }
         for label in ['name', 'type', 'atack', 'defense']:
             draw_text(self.image, CARDS[1][label], CARD['font_size'],
