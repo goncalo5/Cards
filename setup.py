@@ -3,7 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, PLAYER, MOB, CARDS, CARD, BLACK
+from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, RED
 
 
 def combat(atack1, defense1, atack2, defense2):
@@ -21,6 +21,20 @@ def draw_text(screen, text, size, color, pos, font='arial'):
     text_rect = text_surface.get_rect()
     text_rect.midtop = pos
     screen.blit(text_surface, text_rect)
+
+
+class Button(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites
+        super(Button, self).__init__(self.groups)
+        self.game = game
+        self.image = pg.Surface(BUTTON['size'])
+        self.image.fill(BLACK)
+
+        self.rect = self.image.get_rect()
+        self.rect.topleft = BUTTON['pos']
+        pos = (self.rect.width / 2, 10)
+        draw_text(self.image, 'Atack', BUTTON['font_size'], RED, pos)
 
 
 class Mob(pg.sprite.Sprite):
@@ -66,7 +80,6 @@ class Player(pg.sprite.Sprite):
         self.image.blit(self.draw, self.rect_draw)
         # self.image = pg.transform.scale(self.image, CARD.get('size'))
         # self.image.set_colorkey(BLACK)
-        print(self.rect)
         self.rect.topleft = PLAYER['pos']
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
@@ -129,7 +142,8 @@ class Game(object):
         # start a new game
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.player = Player(self)
-        self.player = Mob(self)
+        self.mob = Mob(self)
+        Button(self)
 
     def run(self):
         # game loop - set  self.playing = False to end the game

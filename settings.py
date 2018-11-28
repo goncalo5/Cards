@@ -12,10 +12,15 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 360,
+    'width': 480,
     'height': 480,
     'bgcolor': DARKBLUE,
     'fps': 30
+}
+BUTTON = {
+    'size': (100, 60),
+    'font_size': 30,
+    'pos': (300, 300)
 }
 
 # Player
