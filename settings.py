@@ -20,7 +20,12 @@ DISPLAY = {
 
 # Player
 PLAYER = {
-    'layer': 2
+    'layer': 2,
+    'pos': (100, 250),
+}
+
+MOB = {
+    'pos': (100, 20)
 }
 
 CARD = {
@@ -28,7 +33,6 @@ CARD = {
     'size': (120, 200),
     'width': 120,
     'height': 200,
-    'pos': (100, 200),
     'font_size': 20,
     'name': {
         'color': WHITE,

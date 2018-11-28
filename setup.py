@@ -3,7 +3,13 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, CARDS, CARD, BLACK, WHITE, RED, LIGHTBLUE
+from settings import DISPLAY, PLAYER, MOB, CARDS, CARD, BLACK
+
+
+def combat(atack1, defense1, atack2, defense2):
+    first_die = atack2 > defense1
+    second_die = atack1 > defense2
+    return (first_die, second_die)
 
 
 def draw_text(screen, text, size, color, pos, font='arial'):
@@ -17,8 +23,33 @@ def draw_text(screen, text, size, color, pos, font='arial'):
     screen.blit(text_surface, text_rect)
 
 
+class Mob(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites
+        super(Mob, self).__init__(self.groups)
+        self.game = game
+        self.image = pg.Surface(CARD['size'])
+        self.image.fill(BLACK)
+        self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
+        self.image_path = path.join(self.image_dir, CARDS[1]['img'])
+        self.draw = pg.image.load(self.image_path).convert()
+        self.rect = self.image.get_rect()
+        self.rect_draw = self.draw.get_rect()
+        self.rect_draw.midtop = self.rect.midtop
+        self.rect_draw.y += 30
+        self.image.blit(self.draw, self.rect_draw)
+        self.rect.topleft = MOB['pos']
+        self.dx = 0
+        self.time_to_unpress = pg.time.get_ticks()
+        self.is_up = 1
+        for label in ['name', 'type', 'atack', 'defense']:
+            draw_text(self.image, CARDS[1][label], CARD['font_size'],
+                      CARD[label]['color'], CARD[label]['pos'])
+        self.image = pg.transform.rotate(self.image, 180)
+
+
 class Player(pg.sprite.Sprite):
-    def __init__(self, game, pos):
+    def __init__(self, game):
         self._layer = CARD['layer']
         self.groups = game.all_sprites
         super(Player, self).__init__(self.groups)
@@ -36,7 +67,7 @@ class Player(pg.sprite.Sprite):
         # self.image = pg.transform.scale(self.image, CARD.get('size'))
         # self.image.set_colorkey(BLACK)
         print(self.rect)
-        self.rect.topleft = pos
+        self.rect.topleft = PLAYER['pos']
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
@@ -97,7 +128,8 @@ class Game(object):
     def new(self):
         # start a new game
         self.all_sprites = pg.sprite.LayeredUpdates()
-        self.player = Player(self, CARD['pos'])
+        self.player = Player(self)
+        self.player = Mob(self)
 
     def run(self):
         # game loop - set  self.playing = False to end the game
