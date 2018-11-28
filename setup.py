@@ -43,45 +43,57 @@ class Button(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             print(self.rect.collidepoint(pg.mouse.get_pos()))
-            creature1 = self.game.player.creatures['ze_manel']
-            creature2 = self.game.mob.creatures['ze_manel']
-            res = combat(creature1, creature2)
-            if res[0]:
-                self.game.player.kill()
-            if res[1]:
-                self.game.mob.kill()
+            creature1 = self.game.player.turned.get('ze_manel')
+            creature2 = self.game.mob.in_game.get('ze_manel')
+            if creature1 and creature2:
+                res = combat(creature1, creature2)
+                if res[0]:
+                    self.game.player.kill()
+                if res[1]:
+                    self.game.mob.kill()
 
     def update(self):
         self.events()
 
 
 class Card(object):
-    def __init__(self, **kwargs):
+    def __init__(self, id, **kwargs):
+        self.id = id
         self.name = kwargs.get('name')
         self.type = kwargs.get('type')
         self.atack = kwargs.get('atack')
         self.defense = kwargs.get('defense')
 
+        self.load_a_card()
 
-class Cards(pg.sprite.Sprite):
+    def load_a_card(self):
+        self.image = pg.Surface(CARD['size'])
+        self.image.fill(BLACK)
+        self.image_dir = path.join(path.dirname(__file__), CARDS[self.id]['img_dir'])
+        self.image_path = path.join(self.image_dir, CARDS[self.id]['img'])
+        self.draw = pg.image.load(self.image_path).convert()
+
+    @classmethod
+    def load_rect(cls, image, draw, pos):
+        rect = image.get_rect()
+        rect_draw = draw.get_rect()
+        rect_draw.midtop = rect.midtop
+        rect_draw.y += 30
+        image.blit(draw, rect_draw)
+        rect.topleft = pos
+        return rect
+
+
+class Cards(object):
     @classmethod
     def load_all_cards(cls):
-        cls.image = pg.Surface(CARD['size'])
-        cls.image.fill(BLACK)
-        cls.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
-        cls.image_path = path.join(cls.image_dir, CARDS[1]['img'])
-        cls.draw = pg.image.load(cls.image_path).convert()
+        # cls.image = pg.Surface(CARD['size'])
+        # cls.image.fill(BLACK)
+        # cls.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
+        # cls.image_path = path.join(cls.image_dir, CARDS[1]['img'])
+        # cls.draw = pg.image.load(cls.image_path).convert()
 
-        cls.ze_manel = Card(**CARDS[1])
-
-    @classmethod
-    def load_rect(cls):
-        cls.rect = cls.image.get_rect()
-        cls.rect_draw = cls.draw.get_rect()
-        cls.rect_draw.midtop = cls.rect.midtop
-        cls.rect_draw.y += 30
-        cls.image.blit(cls.draw, cls.rect_draw)
-        return cls.rect
+        cls.ze_manel = Card(1, **CARDS[1])
 
 
 class Mob(pg.sprite.Sprite):
@@ -89,26 +101,18 @@ class Mob(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Mob, self).__init__(self.groups)
         self.game = game
-        self.image = Cards.image
-        self.rect = Cards.load_rect()
-        # self.image = pg.Surface(CARD['size'])
-        # self.image.fill(BLACK)
-        # self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
-        # self.image_path = path.join(self.image_dir, CARDS[1]['img'])
-        # self.draw = pg.image.load(self.image_path).convert()
-        # self.rect = self.image.get_rect()
-        # self.rect_draw = self.draw.get_rect()
-        # self.rect_draw.midtop = self.rect.midtop
-        # self.rect_draw.y += 30
-        # self.image.blit(Cards.draw, Cards.rect_draw)
-        self.rect.topleft = MOB['pos']
-        print('mob rect', self.rect)
-        # self.dx = 0
+
+        self.deck = []
+        self.hand = set()
+        self.in_game = {'ze_manel': Cards.ze_manel}
+        self.turned = set()
+
+        self.image = Cards.ze_manel.image
+        self.draw = Cards.ze_manel.draw
+        self.rect = Card.load_rect(self.image, self.draw, MOB['pos'])
+
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
-        self.creatures = {
-            'ze_manel': Cards.ze_manel
-        }
         for label in ['name', 'type', 'atack', 'defense']:
             draw_text(self.image, CARDS[1][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
@@ -121,27 +125,19 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Player, self).__init__(self.groups)
         self.game = game
-        self.image = Cards.image
-        self.rect = Cards.load_rect()
-        # self.image = pg.Surface(CARD['size'])
-        # self.image.fill(BLACK)
-        # self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
-        # self.image_path = path.join(self.image_dir, CARDS[1]['img'])
-        # self.draw = pg.image.load(self.image_path).convert()
-        # self.rect = self.image.get_rect()
-        # self.rect_draw = self.draw.get_rect()
-        # self.rect_draw.midtop = self.rect.midtop
-        # self.rect_draw.y += 30
-        # self.image.blit(Cards.draw, Cards.rect_draw)
-        self.rect.topleft = PLAYER['pos']
-        print('player rect:', self.rect)
-        print(self.rect is self.game.mob.rect)
+
+        self.deck = []
+        self.hand = set()
+        self.in_game = set()
+        self.turned = {'ze_manel': Cards.ze_manel}
+
+        self.image = Cards.ze_manel.image
+        self.draw = Cards.ze_manel.draw
+        self.rect = Card.load_rect(self.image, self.draw, PLAYER['pos'])
+
         # self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
-        self.creatures = {
-            'ze_manel': Cards.ze_manel
-        }
         for label in ['name', 'type', 'atack', 'defense']:
             draw_text(self.image, CARDS[1][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
