@@ -56,23 +56,45 @@ class Button(pg.sprite.Sprite):
         self.events()
 
 
+class Cards(pg.sprite.Sprite):
+    @classmethod
+    def load_all_cards(cls):
+        cls.image = pg.Surface(CARD['size'])
+        cls.image.fill(BLACK)
+        cls.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
+        cls.image_path = path.join(cls.image_dir, CARDS[1]['img'])
+        cls.draw = pg.image.load(cls.image_path).convert()
+
+    @classmethod
+    def load_rect(cls):
+        cls.rect = cls.image.get_rect()
+        cls.rect_draw = cls.draw.get_rect()
+        cls.rect_draw.midtop = cls.rect.midtop
+        cls.rect_draw.y += 30
+        cls.image.blit(cls.draw, cls.rect_draw)
+        return cls.rect
+
+
 class Mob(pg.sprite.Sprite):
     def __init__(self, game):
         self.groups = game.all_sprites
         super(Mob, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface(CARD['size'])
-        self.image.fill(BLACK)
-        self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
-        self.image_path = path.join(self.image_dir, CARDS[1]['img'])
-        self.draw = pg.image.load(self.image_path).convert()
-        self.rect = self.image.get_rect()
-        self.rect_draw = self.draw.get_rect()
-        self.rect_draw.midtop = self.rect.midtop
-        self.rect_draw.y += 30
-        self.image.blit(self.draw, self.rect_draw)
+        self.image = Cards.image
+        self.rect = Cards.load_rect()
+        # self.image = pg.Surface(CARD['size'])
+        # self.image.fill(BLACK)
+        # self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
+        # self.image_path = path.join(self.image_dir, CARDS[1]['img'])
+        # self.draw = pg.image.load(self.image_path).convert()
+        # self.rect = self.image.get_rect()
+        # self.rect_draw = self.draw.get_rect()
+        # self.rect_draw.midtop = self.rect.midtop
+        # self.rect_draw.y += 30
+        # self.image.blit(Cards.draw, Cards.rect_draw)
         self.rect.topleft = MOB['pos']
-        self.dx = 0
+        print('mob rect', self.rect)
+        # self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         self.creatures = {
@@ -93,20 +115,22 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Player, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface(CARD['size'])
-        self.image.fill(BLACK)
-        self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
-        self.image_path = path.join(self.image_dir, CARDS[1]['img'])
-        self.draw = pg.image.load(self.image_path).convert()
-        self.rect = self.image.get_rect()
-        self.rect_draw = self.draw.get_rect()
-        self.rect_draw.midtop = self.rect.midtop
-        self.rect_draw.y += 30
-        self.image.blit(self.draw, self.rect_draw)
-        # self.image = pg.transform.scale(self.image, CARD.get('size'))
-        # self.image.set_colorkey(BLACK)
+        self.image = Cards.image
+        self.rect = Cards.load_rect()
+        # self.image = pg.Surface(CARD['size'])
+        # self.image.fill(BLACK)
+        # self.image_dir = path.join(path.dirname(__file__), CARDS[1]['img_dir'])
+        # self.image_path = path.join(self.image_dir, CARDS[1]['img'])
+        # self.draw = pg.image.load(self.image_path).convert()
+        # self.rect = self.image.get_rect()
+        # self.rect_draw = self.draw.get_rect()
+        # self.rect_draw.midtop = self.rect.midtop
+        # self.rect_draw.y += 30
+        # self.image.blit(Cards.draw, Cards.rect_draw)
         self.rect.topleft = PLAYER['pos']
-        self.dx = 0
+        print('player rect:', self.rect)
+        print(self.rect is self.game.mob.rect)
+        # self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
         self.creatures = {
@@ -165,13 +189,14 @@ class Game(object):
 
     def load_data(self):
         self.dir = path.dirname(__file__)
+        Cards.load_all_cards()
         pg.mixer.init()  # for sound
 
     def new(self):
         # start a new game
         self.all_sprites = pg.sprite.LayeredUpdates()
-        self.player = Player(self)
         self.mob = Mob(self)
+        self.player = Player(self)
         Button(self)
 
     def run(self):
