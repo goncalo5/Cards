@@ -28,13 +28,32 @@ class Button(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Button, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface(BUTTON['size'])
+        self.image = pg.Surface(BUTTON['atack']['size'])
         self.image.fill(BLACK)
 
         self.rect = self.image.get_rect()
-        self.rect.topleft = BUTTON['pos']
+        self.rect.topleft = BUTTON['atack']['pos']
         pos = (self.rect.width / 2, 10)
-        draw_text(self.image, 'Atack', BUTTON['font_size'], RED, pos)
+        draw_text(self.image, 'Atack', BUTTON['atack']['font_size'],
+                  BUTTON['atack']['color'], pos)
+
+    def events(self):
+        if not self.rect.collidepoint(pg.mouse.get_pos()):
+            return
+
+        if pg.mouse.get_pressed() == (1, 0, 0):
+            print(self.rect.collidepoint(pg.mouse.get_pos()))
+            creature1 = self.game.player.creatures['ze_manel']
+            creature2 = self.game.mob.creatures['ze_manel']
+            res = combat(creature1['atack'], creature1['defense'],
+                         creature2['atack'], creature2['defense'])
+            if res[0]:
+                self.game.player.kill()
+            if res[1]:
+                self.game.mob.kill()
+
+    def update(self):
+        self.events()
 
 
 class Mob(pg.sprite.Sprite):
@@ -56,6 +75,12 @@ class Mob(pg.sprite.Sprite):
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
+        self.creatures = {
+            'ze_manel': {
+                'atack': CARDS[1]['atack'],
+                'defense': CARDS[1]['defense'],
+            }
+        }
         for label in ['name', 'type', 'atack', 'defense']:
             draw_text(self.image, CARDS[1][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
@@ -84,12 +109,18 @@ class Player(pg.sprite.Sprite):
         self.dx = 0
         self.time_to_unpress = pg.time.get_ticks()
         self.is_up = 1
+        self.creatures = {
+            'ze_manel': {
+                'atack': CARDS[1]['atack'],
+                'defense': CARDS[1]['defense'],
+            }
+        }
         for label in ['name', 'type', 'atack', 'defense']:
             draw_text(self.image, CARDS[1][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
 
     def events(self):
-        self.dx = 0
+        # self.dx = 0
         # print(pg.mouse.get_pressed())
         if pg.time.get_ticks() - self.time_to_unpress < 300:
             return
@@ -113,9 +144,7 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.events()
-        self.rect.x += self.dx
-        if self.rect.left > DISPLAY['width']:
-            self.rect.right = 0
+        # self.rect.x += self.dx
 
 
 class Game(object):

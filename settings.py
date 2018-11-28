@@ -18,9 +18,12 @@ DISPLAY = {
     'fps': 30
 }
 BUTTON = {
-    'size': (100, 60),
-    'font_size': 30,
-    'pos': (300, 300)
+    'atack': {
+        'size': (100, 60),
+        'font_size': 30,
+        'color': RED,
+        'pos': (350, 300),
+    }
 }
 
 # Player
@@ -64,6 +67,6 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'p1_front.png',
         'atack': 7,
-        'defense': 8
+        'defense': 6
     }
 }
