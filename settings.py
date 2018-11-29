@@ -13,7 +13,7 @@ YELLOW = (255, 255, 0)
 DISPLAY = {
     'title': "My Game",
     'width': 640,
-    'height': 520,
+    'height': 760,
     'bgcolor': DARKBLUE,
     'fps': 30
 }
@@ -39,7 +39,15 @@ BUTTON = {
 # Player
 PLAYER = {
     'layer': 2,
-    'pos': (150, 250),
+    'size': (100, 30),
+    'pos': (10, DISPLAY['height'] - 100),
+    'life': 10,
+    'hand': {
+        'pos': (150, DISPLAY['height'] - 210)
+    },
+    'in_play': {
+        'pos': (150, DISPLAY['height'] / 2)
+    }
 }
 
 MOB = {
@@ -48,9 +56,9 @@ MOB = {
 
 CARD = {
     'layer': 2,
-    'size': (120, 200),
+    'size': (120, 160),
     'width': 120,
-    'height': 200,
+    'height': 160,
     'font_size': 20,
     'name': {
         'color': WHITE,
@@ -58,15 +66,15 @@ CARD = {
     },
     'type': {
         'color': WHITE,
-        'pos': (50, 150)
+        'pos': (30, 140)
     },
     'atack': {
         'color': RED,
-        'pos': (60, 180)
+        'pos': (80, 140)
     },
     'defense': {
         'color': LIGHTBLUE,
-        'pos': (80, 180)
+        'pos': (100, 140)
     }
 }
 
@@ -77,7 +85,7 @@ CARDS = {
         'type': 'human',
         'img_dir': 'imgs',
         'img': 'p1_front.png',
-        'atack': 7,
-        'defense': 6
+        'atack': 1,
+        'defense': 1
     }
 }

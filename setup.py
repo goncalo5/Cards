@@ -3,12 +3,12 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, RED
+from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, RED, GREEN
 
 
 def combat(creature1, creature2):
-    first_die = creature2.atack > creature1.defense
-    second_die = creature1.atack > creature2.defense
+    first_die = creature2.atack >= creature1.defense
+    second_die = creature1.atack >= creature2.defense
     return (first_die, second_die)
 
 
@@ -74,7 +74,7 @@ class Button(pg.sprite.Sprite):
         new_card_template = self.game.player.deck.pop()
         print(new_card_template)
         self.game.player.hand[new_card_template.id] =\
-            Card(self.game, new_card_template, (300, 300))
+            Card(self.game, new_card_template, PLAYER['hand']['pos'])
         print(self.game.player.hand)
 
 
@@ -99,8 +99,6 @@ class Card(pg.sprite.Sprite):
         self.is_up = 1
 
     def events(self):
-        # self.dx = 0
-        # print(pg.mouse.get_pressed())
         if pg.time.get_ticks() - self.time_to_unpress < 300:
             return
 
@@ -109,7 +107,6 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             print(self.rect.collidepoint(pg.mouse.get_pos()))
-            # self.dx = -10
             if self.is_in_play:
                 self.image = pg.transform.rotate(self.image, 90 * self.is_up)
                 print(self.rect)
@@ -125,19 +122,11 @@ class Card(pg.sprite.Sprite):
                 self.is_in_play = 1
                 self.game.player.hand.pop(self.template.id)
                 self.game.player.in_play[self.template.id] = self
-                self.rect.y -= 100
-
-            # if self.in_game.get('ze_manel'):
-            #     if self.turned.get('ze_manel'):
-            #         self.turned.pop('ze_manel')
-            #     else:
-            #         self.turned['ze_manel'] = TemplateCards.ze_manel
-            # print(self.turned)
+                self.rect.topleft = PLAYER['in_play']['pos']
 
             self.time_to_unpress = pg.time.get_ticks()
         if pg.mouse.get_pressed() == (0, 0, 1):
             print(1)
-            # self.dx = 10
             self.time_to_unpress = pg.time.get_ticks()
 
     def update(self):
@@ -212,29 +201,22 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Player, self).__init__(self.groups)
         self.game = game
+        self.life = PLAYER['life']
 
         self.deck = [TemplateCards.ze_manel]
         self.hand = {}
-        # self.in_playe = {'ze_manel': TemplateCards.ze_manel}
         self.in_play = {}
         self.turned = {}
 
-        self.image = pg.Surface((30, 20))
+        self.image = pg.Surface(PLAYER['size'])
         self.rect = self.image.get_rect()
-        self.rect.topleft = (0, 300)
-        # self.image = TemplateCards.ze_manel.image
-        # self.draw = TemplateCards.ze_manel.draw
-        # self.rect = TemplateCard.load_rect(self.image, self.draw, PLAYER['pos'])
+        self.rect.topleft = PLAYER['pos']
 
-        # self.dx = 0
+        draw_text(self.image, 'life: %s' % self.life, 20, GREEN, (self.rect.width / 2, 10))
+
         self.time_to_unpress = pg.time.get_ticks()
-        # self.is_up = 1
-        # for label in ['name', 'type', 'atack', 'defense']:
-        #     draw_text(self.image, CARDS['ze_manel'][label], CARD['font_size'],
-        #               CARD[label]['color'], CARD[label]['pos'])
 
     # def events(self):
-        # self.dx = 0
         # print(pg.mouse.get_pressed())
         # if pg.time.get_ticks() - self.time_to_unpress < 300:
         #     return
@@ -243,30 +225,9 @@ class Player(pg.sprite.Sprite):
         #     return
 
         # if pg.mouse.get_pressed() == (1, 0, 0):
-        #     print(self.rect.collidepoint(pg.mouse.get_pos()))
-        #     # self.dx = -10
-        #     self.image = pg.transform.rotate(self.image, 90 * self.is_up)
-        #     print(self.rect)
-        #     print((self.rect.height - self.rect.width) * self.is_up)
-        #     self.rect.y += (self.rect.height - self.rect.width) * self.is_up
-        #     self.is_up *= -1
-
-        # if self.in_game.get('ze_manel'):
-        #     if self.turned.get('ze_manel'):
-        #         self.turned.pop('ze_manel')
-        #     else:
-        #         self.turned['ze_manel'] = TemplateCards.ze_manel
-        # print(self.turned)
-
-        #     self.time_to_unpress = pg.time.get_ticks()
-        # if pg.mouse.get_pressed() == (0, 0, 1):
-        #     print(1)
-        #     # self.dx = 10
-        #     self.time_to_unpress = pg.time.get_ticks()
 
     # def update(self):
     #     self.events()
-        # self.rect.x += self.dx
 
 
 class Game(object):
