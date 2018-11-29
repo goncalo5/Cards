@@ -55,9 +55,15 @@ class Button(pg.sprite.Sprite):
             if self.id == 'atack':
                 print('atack')
                 print('self.game.player.turned', self.game.player.turned)
-                print('self.game.mob.in_game', self.game.mob.in_game)
+                print('self.game.mob.in_play', self.game.mob.in_play)
                 creature1 = self.game.player.turned.get('ze_manel')
-                creature2 = self.game.mob.in_game.get('ze_manel')
+                creature2 = self.game.mob.in_play.get('ze_manel')
+                if creature1 and not creature2:
+                    self.game.mob.life -= creature1.atack
+                    self.game.mob.draw_a_card()
+                    self.game.mob.play_a_card('ze_manel')
+                    self.game.mob.turn_a_card('ze_manel')
+                    self.game.mob.atack_the_player()
                 if creature1 and creature2:
                     print('both')
                     res = combat(creature1, creature2)
@@ -79,14 +85,17 @@ class Button(pg.sprite.Sprite):
 
 
 class Card(pg.sprite.Sprite):
-    def __init__(self, game, template, pos):
+    def __init__(self, game, template, pos=None):
         self.groups = game.all_sprites
         super(Card, self).__init__(self.groups)
         self.game = game
         self.template = template
+        self.id = template.id
         self.atack = template.atack
         self.defense = template.defense
         self.image = template.image
+        if pos is None:
+            pos = (0, -300)
         self.rect = template.load_rect(self.image, template.draw, pos)
 
         for label in ['name', 'type', 'atack', 'defense']:
@@ -108,15 +117,7 @@ class Card(pg.sprite.Sprite):
         if pg.mouse.get_pressed() == (1, 0, 0):
             print(self.rect.collidepoint(pg.mouse.get_pos()))
             if self.is_in_play:
-                self.image = pg.transform.rotate(self.image, 90 * self.is_up)
-                print(self.rect)
-                print((self.rect.height - self.rect.width) * self.is_up)
-                self.rect.y += (self.rect.height - self.rect.width) * self.is_up
-                self.is_up *= -1
-                if self.is_up == -1:
-                    self.game.player.turned[self.template.id] = self
-                else:
-                    self.game.player.turned.pop(self.template.id)
+                self.rotate_a_card()
             if self.is_in_hand:
                 self.is_in_hand = 0
                 self.is_in_play = 1
@@ -135,6 +136,17 @@ class Card(pg.sprite.Sprite):
         # print('in_play', self.game.player.in_play)
 
         self.events()
+
+    def rotate_a_card(self):
+        self.image = pg.transform.rotate(self.image, 90 * self.is_up)
+        print(self.rect)
+        print((self.rect.height - self.rect.width) * self.is_up)
+        self.rect.y += (self.rect.height - self.rect.width) * self.is_up
+        self.is_up *= -1
+        if self.is_up == -1:
+            self.game.player.turned[self.template.id] = self
+        else:
+            self.game.player.turned.pop(self.template.id)
 
 
 class TemplateCard(object):
@@ -177,22 +189,59 @@ class Mob(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Mob, self).__init__(self.groups)
         self.game = game
+        self.life = MOB['life']
 
-        self.deck = []
+        self.deck = [TemplateCards.ze_manel]
         self.hand = {}
-        self.in_game = {'ze_manel': TemplateCards.ze_manel}
-        self.turned = set()
+        self.in_play = {}
+        self.turned = {}
 
-        self.image = TemplateCards.ze_manel.image
-        self.draw = TemplateCards.ze_manel.draw
-        self.rect = TemplateCard.load_rect(self.image, self.draw, MOB['pos'])
+        self.image = pg.Surface(MOB['size'])
+        self.rect = self.image.get_rect()
+        self.rect.topleft = MOB['pos']
 
-        self.time_to_unpress = pg.time.get_ticks()
-        self.is_up = 1
-        for label in ['name', 'type', 'atack', 'defense']:
-            draw_text(self.image, CARDS['ze_manel'][label], CARD['font_size'],
-                      CARD[label]['color'], CARD[label]['pos'])
-        self.image = pg.transform.rotate(self.image, 180)
+        # self.image = TemplateCards.ze_manel.image
+        # self.draw = TemplateCards.ze_manel.draw
+        # self.rect = TemplateCard.load_rect(self.image, self.draw, MOB['pos'])
+
+        # for label in ['name', 'type', 'atack', 'defense']:
+        #     draw_text(self.image, CARDS['ze_manel'][label], CARD['font_size'],
+        #               CARD[label]['color'], CARD[label]['pos'])
+        # self.image = pg.transform.rotate(self.image, 180)
+
+        # draw_text(self.image, 'life: %s' % self.life, 20, GREEN, (self.rect.width / 2, 10))
+
+    def draw_a_card(self):
+        new_card_template = self.deck.pop()
+        self.hand[new_card_template.id] =\
+            Card(self.game, new_card_template)
+
+    def play_a_card(self, card):
+        card_to_play = self.hand.pop(card)
+        if card_to_play is not None:
+            self.in_play[card_to_play.id] = card_to_play
+            card_to_play.rect.topleft = MOB['in_play']['pos']
+            card_to_play.image = pg.transform.rotate(card_to_play.image, 180)
+
+    def turn_a_card(self, card):
+        card_to_turn = self.in_play.get(card)
+        if card_to_turn is not None:
+            self.turned[card_to_turn.id] = card_to_turn
+            card_to_turn.rotate_a_card()
+
+    def atack_the_player(self):
+        creature1 = self.turned['ze_manel']
+        creature2 = self.game.player.in_play['ze_manel']
+        res = combat(creature1, creature2)
+        print('res', res)
+        if res[1]:
+            creature2.kill()
+        if res[0]:
+            creature1.kill()
+
+    def update(self):
+        self.image.fill(BLACK)
+        draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
 
 
 class Player(pg.sprite.Sprite):
@@ -212,7 +261,7 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = PLAYER['pos']
 
-        draw_text(self.image, 'life: %s' % self.life, 20, GREEN, (self.rect.width / 2, 10))
+        # draw_text(self.image, 'life: %s' % self.life, 20, GREEN, (self.rect.width / 2, 10))
 
         self.time_to_unpress = pg.time.get_ticks()
 
@@ -226,7 +275,10 @@ class Player(pg.sprite.Sprite):
 
         # if pg.mouse.get_pressed() == (1, 0, 0):
 
-    # def update(self):
+    def update(self):
+        self.image.fill(BLACK)
+        draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
+
     #     self.events()
 
 
@@ -294,6 +346,8 @@ class Game(object):
         self.all_sprites.update()
 
     def draw(self):
+        pg.display.set_caption('%s - fps: %.5s' %
+                               (DISPLAY['title'], self.clock.get_fps()))
         self.screen.fill(DISPLAY['bgcolor'])
         self.all_sprites.draw(self.screen)
 

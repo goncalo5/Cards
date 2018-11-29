@@ -46,12 +46,17 @@ PLAYER = {
         'pos': (150, DISPLAY['height'] - 210)
     },
     'in_play': {
-        'pos': (150, DISPLAY['height'] / 2)
+        'pos': (150, DISPLAY['height'] / 3)
     }
 }
 
 MOB = {
-    'pos': (150, 20)
+    'size': (100, 30),
+    'pos': (10, 10),
+    'life': 10,
+    'in_play': {
+        'pos': (150, 10)
+    }
 }
 
 CARD = {
