@@ -125,7 +125,11 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             if self.is_in_play:
-                self.rotate_a_card()
+                self.rotate()
+                if self.is_up == -1:
+                    self.game.player.turn_a_card(self)
+                else:
+                    self.game.player.unturn_a_card(self)
             if self.is_in_hand:
                 self.is_in_hand = 0
                 self.is_in_play = 1
@@ -147,6 +151,11 @@ class Card(pg.sprite.Sprite):
         if self.rect.y > self.target_pos[1]:
             self.is_moving = 0
         self.rect.y += 10
+
+    def rotate(self):
+        self.image = pg.transform.rotate(self.image, 90 * self.is_up)
+        self.rect.y += (self.rect.height - self.rect.width) * self.is_up
+        self.is_up *= -1
 
     def rotate_a_card(self):
         self.image = pg.transform.rotate(self.image, 90 * self.is_up)
@@ -250,7 +259,7 @@ class Mob(pg.sprite.Sprite):
             return
         if card_to_turn is not None:
             self.turned[card_to_turn.id] = card_to_turn
-            card_to_turn.rotate_a_mob_card()
+            card_to_turn.rotate()
 
     def atack_the_player(self):
         print('atack_the_player()')
@@ -360,6 +369,8 @@ class Player(pg.sprite.Sprite):
         self.turned[new_card.id] = new_card
 
     def unturn_a_card(self, card):
+        if type(card) != str:
+            card = card.id
         new_card = self.turned.pop(card)
         self.in_play[new_card.id] = new_card
 
