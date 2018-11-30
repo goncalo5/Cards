@@ -25,7 +25,7 @@ def draw_text(screen, text, size, color, pos, font='arial'):
 
 class Button(pg.sprite.Sprite):
     def __init__(self, game, **kwargs):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.buttons
         super(Button, self).__init__(self.groups)
         self.game = game
         self.id = kwargs.get('id')
@@ -48,8 +48,15 @@ class Button(pg.sprite.Sprite):
             return
 
         if pg.mouse.get_pressed() == (1, 0, 0):
+            if self.id == 'new_game':
+                self.game.new()
+                self.kill()
             if self.id == 'deck':
-                self.game.player.draw_a_card()
+                if self.game.player.can_draw:
+                    self.game.player.draw_a_card()
+                    self.game.player.can_draw = 0
+                if not self.game.player.deck:
+                    self.kill()
             if self.id == 'atack':
                 print('button atack')
                 creature1 = self.game.player.turned.get('ze_manel')
@@ -66,6 +73,7 @@ class Button(pg.sprite.Sprite):
                     if res[1]:
                         creature2.kill()
             if self.id == 'block':
+                self.game.player.is_blocking = 1
                 print('button block')
                 if self.game.player.in_play:
                     creature1 = self.game.mob.turned.get('ze_manel')
@@ -79,7 +87,7 @@ class Button(pg.sprite.Sprite):
                         creature2.kill()
             if self.id == 'pass':
                 print('button pass')
-                self.game.mob.step = 1
+                self.game.mob.step += 1
 
             self.time_to_unpress = pg.time.get_ticks()
 
@@ -88,10 +96,11 @@ class Button(pg.sprite.Sprite):
 
 
 class Card(pg.sprite.Sprite):
-    def __init__(self, game, template, pos=None):
-        self.groups = game.all_sprites
+    def __init__(self, game, owner, template, pos=None):
+        self.groups = game.all_sprites, game.cards
         super(Card, self).__init__(self.groups)
         self.game = game
+        self.owner = owner
         self.template = template
         self.id = template.id
         self.atack = template.atack
@@ -121,17 +130,19 @@ class Card(pg.sprite.Sprite):
             return
 
         if pg.mouse.get_pressed() == (1, 0, 0):
+            self.time_to_unpress = pg.time.get_ticks()
+
             if self.is_in_play:
-                self.rotate_a_card()
+                # self.rotate()
+                if self.is_up == 1:
+                    self.game.player.turn_a_card(self)
+                else:
+                    self.game.player.unturn_a_card(self)
             if self.is_in_hand:
                 self.is_in_hand = 0
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
                 self.rect.topleft = PLAYER['in_play']['pos']
-
-            self.time_to_unpress = pg.time.get_ticks()
-        if pg.mouse.get_pressed() == (0, 0, 1):
-            self.time_to_unpress = pg.time.get_ticks()
 
     def update(self):
         if self.is_moving:
@@ -143,18 +154,9 @@ class Card(pg.sprite.Sprite):
     def move_to_pos(self):
         if self.rect.y > self.target_pos[1]:
             self.is_moving = 0
-        self.rect.y += 10
+        self.rect.y += CARD['speed'] * self.is_moving
 
-    def rotate_a_card(self):
-        self.image = pg.transform.rotate(self.image, 90 * self.is_up)
-        self.rect.y += (self.rect.height - self.rect.width) * self.is_up
-        self.is_up *= -1
-        if self.is_up == -1:
-            self.game.player.turn_a_card(self)
-        else:
-            self.game.player.unturn_a_card(self)
-
-    def rotate_a_mob_card(self):
+    def rotate(self):
         self.image = pg.transform.rotate(self.image, 90 * self.is_up)
         self.rect.y += (self.rect.height - self.rect.width) * self.is_up
         self.is_up *= -1
@@ -212,19 +214,31 @@ class Mob(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = MOB['pos']
 
+        self.new_turn()
+
+    def new_turn(self):
         self.step = 0
         self.wait = 1
-        self.steps = ['drawing', 'playing', 'turning', 'atacking']
         self.card_to_play = None
+        for turned_card in self.turned:
+            self.unturn_a_card(turned_card)
 
     def draw_a_card(self):
-        new_card_template = self.deck.pop()
-        new_card = Card(self.game, new_card_template)
+        print('draw_a_card()')
+        try:
+            new_card_template = self.deck.pop()
+        except IndexError:
+            return
+        new_card = Card(self.game, self, new_card_template)
         self.hand[new_card_template.id] = new_card
         self.card_to_play = self.hand[new_card.id]
 
     def play_a_card(self, card):
-        card_to_play = self.hand.pop(card)
+        print('play_a_card()')
+        try:
+            card_to_play = self.hand.pop(card)
+        except KeyError:
+            return
         card_to_play.is_moving = True
         if card_to_play is not None:
             self.in_play[card_to_play.id] = card_to_play
@@ -232,14 +246,29 @@ class Mob(pg.sprite.Sprite):
             card_to_play.target_pos = MOB['in_play']['pos']
 
     def turn_a_card(self, card):
-        card_to_turn = self.in_play.pop(card)
+        print('turn_a_card()')
+        try:
+            card_to_turn = self.in_play.pop(card)
+        except KeyError:
+            return
         if card_to_turn is not None:
             self.turned[card_to_turn.id] = card_to_turn
-            card_to_turn.rotate_a_mob_card()
+            card_to_turn.rotate()
+
+    def unturn_a_card(self, card):
+        if type(card) != str:
+            card = card.id
+        new_card = self.turned.pop(card)
+        self.in_play[new_card.id] = new_card
 
     def atack_the_player(self):
         print('atack_the_player()')
         creature1 = self.turned.get('ze_manel')
+        if not self.game.player.is_blocking:
+            self.game.player.life -= creature1.atack
+            self.step = 0
+            self.wait = 1
+            return
         creature2 = self.game.player.in_play.get('ze_manel')
         if creature1 and creature2:
             res = combat(creature1, creature2)
@@ -280,6 +309,7 @@ class Mob(pg.sprite.Sprite):
         if self.step == 4:
             # print('step', self.step)
             self.atack_the_player()
+            self.game.player.new_turn()
 
 
 class Player(pg.sprite.Sprite):
@@ -302,27 +332,29 @@ class Player(pg.sprite.Sprite):
 
         self.time_to_unpress = pg.time.get_ticks()
 
-    # def events(self):
-        # print(pg.mouse.get_pressed())
-        # if pg.time.get_ticks() - self.time_to_unpress < 300:
-        #     return
-
-        # if not self.rect.collidepoint(pg.mouse.get_pos()):
-        #     return
-
-        # if pg.mouse.get_pressed() == (1, 0, 0):
+        self.new_turn()
 
     def update(self):
         self.image.fill(BLACK)
         draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
-    #     self.events()
+        if self.life <= 0:
+            print('Game Over')
+            Menu(self.game)
+
+    def new_turn(self):
+        print('new_turn()')
+        self.can_draw = 1
+        self.is_blocking = 0
+        cards_to_unturn = []
+        for turned_card in self.turned:
+            cards_to_unturn.append(turned_card)
+        print(5, cards_to_unturn)
+        [self.unturn_a_card(card) for card in cards_to_unturn]
 
     def draw_a_card(self):
-        print('draw_a_card()')
         new_card_template = self.deck.pop()
-        new_card = Card(self.game, new_card_template, PLAYER['hand']['pos'])
+        new_card = Card(self.game, self, new_card_template, PLAYER['hand']['pos'])
         self.hand[new_card.id] = new_card
-        print('hand:', self.hand)
 
     def play_a_card(self, card):
         if type(card) != str:
@@ -331,19 +363,35 @@ class Player(pg.sprite.Sprite):
         self.in_play[new_card.id] = new_card
 
     def turn_a_card(self, card):
-        print('turn_a_card()', card)
-        print('in_play', self.in_play)
+        print('turn_a_card()')
         if type(card) != str:
             card = card.id
         new_card = self.in_play.pop(card)
         self.turned[new_card.id] = new_card
+        new_card.rotate()
 
     def unturn_a_card(self, card):
+        print('unturn_a_card()')
+        if type(card) != str:
+            card = card.id
         new_card = self.turned.pop(card)
         self.in_play[new_card.id] = new_card
+        new_card.rotate()
 
     def atack_the_player(self):
         pass
+
+
+class Menu(object):
+    def __init__(self, game):
+        self.game = game
+
+        self.clear_all()
+        Button(game, **BUTTON['new_game'])
+
+    def clear_all(self):
+        for sprite in self.game.all_sprites:
+            sprite.kill()
 
 
 class Game(object):
@@ -357,7 +405,11 @@ class Game(object):
         self.cmd_key_down = False
 
         self.load_data()
-        self.new()
+        self.all_sprites = pg.sprite.LayeredUpdates()
+        self.buttons = pg.sprite.Group()
+        self.cards = pg.sprite.Group()
+        Menu(self)
+        # self.new()
         self.run()
 
         pg.quit()
@@ -368,8 +420,11 @@ class Game(object):
         pg.mixer.init()  # for sound
 
     def new(self):
+        print('new()')
+
         # start a new game
-        self.all_sprites = pg.sprite.LayeredUpdates()
+
+        # self.all_sprites = pg.sprite.LayeredUpdates()
         self.mob = Mob(self)
         self.player = Player(self)
         Button(self, **BUTTON['atack'])
