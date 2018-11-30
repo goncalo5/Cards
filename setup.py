@@ -68,6 +68,7 @@ class Button(pg.sprite.Sprite):
                     if res[1]:
                         creature2.kill()
             if self.id == 'block':
+                self.game.player.is_blocking = 1
                 print('button block')
                 if self.game.player.in_play:
                     creature1 = self.game.mob.turned.get('ze_manel')
@@ -81,7 +82,7 @@ class Button(pg.sprite.Sprite):
                         creature2.kill()
             if self.id == 'pass':
                 print('button pass')
-                self.game.mob.step = 1
+                self.game.mob.step += 1
 
             self.time_to_unpress = pg.time.get_ticks()
 
@@ -220,13 +221,21 @@ class Mob(pg.sprite.Sprite):
         self.card_to_play = None
 
     def draw_a_card(self):
-        new_card_template = self.deck.pop()
+        print('draw_a_card()')
+        try:
+            new_card_template = self.deck.pop()
+        except IndexError:
+            return
         new_card = Card(self.game, new_card_template)
         self.hand[new_card_template.id] = new_card
         self.card_to_play = self.hand[new_card.id]
 
     def play_a_card(self, card):
-        card_to_play = self.hand.pop(card)
+        print('play_a_card()')
+        try:
+            card_to_play = self.hand.pop(card)
+        except KeyError:
+            return
         card_to_play.is_moving = True
         if card_to_play is not None:
             self.in_play[card_to_play.id] = card_to_play
@@ -234,7 +243,11 @@ class Mob(pg.sprite.Sprite):
             card_to_play.target_pos = MOB['in_play']['pos']
 
     def turn_a_card(self, card):
-        card_to_turn = self.in_play.pop(card)
+        print('turn_a_card()')
+        try:
+            card_to_turn = self.in_play.pop(card)
+        except KeyError:
+            return
         if card_to_turn is not None:
             self.turned[card_to_turn.id] = card_to_turn
             card_to_turn.rotate_a_mob_card()
@@ -242,6 +255,11 @@ class Mob(pg.sprite.Sprite):
     def atack_the_player(self):
         print('atack_the_player()')
         creature1 = self.turned.get('ze_manel')
+        if not self.game.player.is_blocking:
+            self.game.player.life -= creature1.atack
+            self.step = 0
+            self.wait = 1
+            return
         creature2 = self.game.player.in_play.get('ze_manel')
         if creature1 and creature2:
             res = combat(creature1, creature2)
@@ -297,6 +315,7 @@ class Player(pg.sprite.Sprite):
         self.in_play = {}
         self.turned = {}
         self.atacking = {}
+        self.is_blocking = 0
 
         self.image = pg.Surface(PLAYER['size'])
         self.rect = self.image.get_rect()
