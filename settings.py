@@ -18,6 +18,14 @@ DISPLAY = {
     'fps': 30
 }
 BUTTON = {
+    'new_game': {
+        'id': 'new_game',
+        'name': 'New Game',
+        'size': (300, 200),
+        'font_size': 50,
+        'color': YELLOW,
+        'pos': (20, 200)
+    },
     'deck': {
         'id': 'deck',
         'name': 'Deck',
@@ -57,7 +65,7 @@ PLAYER = {
     'layer': 2,
     'size': (100, 30),
     'pos': (10, DISPLAY['height'] - 100),
-    'life': 10,
+    'life': 2,
     'hand': {
         'pos': (150, DISPLAY['height'] - 210)
     },
@@ -69,7 +77,7 @@ PLAYER = {
 MOB = {
     'size': (100, 30),
     'pos': (10, 10),
-    'life': 10,
+    'life': 2,
     'in_play': {
         'pos': (150, 10)
     }

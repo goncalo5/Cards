@@ -25,7 +25,7 @@ def draw_text(screen, text, size, color, pos, font='arial'):
 
 class Button(pg.sprite.Sprite):
     def __init__(self, game, **kwargs):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.buttons
         super(Button, self).__init__(self.groups)
         self.game = game
         self.id = kwargs.get('id')
@@ -48,6 +48,9 @@ class Button(pg.sprite.Sprite):
             return
 
         if pg.mouse.get_pressed() == (1, 0, 0):
+            if self.id == 'new_game':
+                self.game.new()
+                self.kill()
             if self.id == 'deck':
                 if self.game.player.can_draw:
                     self.game.player.draw_a_card()
@@ -94,7 +97,7 @@ class Button(pg.sprite.Sprite):
 
 class Card(pg.sprite.Sprite):
     def __init__(self, game, owner, template, pos=None):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.cards
         super(Card, self).__init__(self.groups)
         self.game = game
         self.owner = owner
@@ -334,6 +337,9 @@ class Player(pg.sprite.Sprite):
     def update(self):
         self.image.fill(BLACK)
         draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
+        if self.life <= 0:
+            print('Game Over')
+            Menu(self.game)
 
     def new_turn(self):
         print('new_turn()')
@@ -376,6 +382,18 @@ class Player(pg.sprite.Sprite):
         pass
 
 
+class Menu(object):
+    def __init__(self, game):
+        self.game = game
+
+        self.clear_all()
+        Button(game, **BUTTON['new_game'])
+
+    def clear_all(self):
+        for sprite in self.game.all_sprites:
+            sprite.kill()
+
+
 class Game(object):
     def __init__(self):
         pg.init()
@@ -387,7 +405,11 @@ class Game(object):
         self.cmd_key_down = False
 
         self.load_data()
-        self.new()
+        self.all_sprites = pg.sprite.LayeredUpdates()
+        self.buttons = pg.sprite.Group()
+        self.cards = pg.sprite.Group()
+        Menu(self)
+        # self.new()
         self.run()
 
         pg.quit()
@@ -398,8 +420,9 @@ class Game(object):
         pg.mixer.init()  # for sound
 
     def new(self):
+        print('new()')
         # start a new game
-        self.all_sprites = pg.sprite.LayeredUpdates()
+        # self.all_sprites = pg.sprite.LayeredUpdates()
         self.mob = Mob(self)
         self.player = Player(self)
         Button(self, **BUTTON['atack'])
