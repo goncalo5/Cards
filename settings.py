@@ -41,7 +41,15 @@ BUTTON = {
         'font_size': 30,
         'color': LIGHTBLUE,
         'pos': (520, 400),
-    }
+    },
+    'pass': {
+        'id': 'pass',
+        'name': 'Pass',
+        'size': (100, 60),
+        'font_size': 30,
+        'color': WHITE,
+        'pos': (520, 500),
+    },
 }
 
 # Player
