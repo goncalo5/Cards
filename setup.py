@@ -50,6 +50,8 @@ class Button(pg.sprite.Sprite):
         if pg.mouse.get_pressed() == (1, 0, 0):
             if self.id == 'deck':
                 self.game.player.draw_a_card()
+                if not self.game.player.deck:
+                    self.kill()
             if self.id == 'atack':
                 print('button atack')
                 creature1 = self.game.player.turned.get('ze_manel')
