@@ -59,19 +59,21 @@ class Button(pg.sprite.Sprite):
                     self.kill()
             if self.id == 'atack':
                 print('button atack')
-                creature1 = self.game.player.turned.get('ze_manel')
-                creature2 = self.game.mob.in_play.get('ze_manel')
-                print(creature1, creature2)
-                if creature1 and not creature2:
-                    self.game.mob.life -= creature1.atack
-                    self.game.mob.step = 1
-                if creature1 and creature2:
-                    res = combat(creature1, creature2)
-                    print(res)
-                    if res[0]:
-                        creature1.kill()
-                    if res[1]:
-                        creature2.kill()
+                self.game.mob.calc_blockers()
+                for atacking_creature in self.game.player.turned:
+                    creature1 = self.game.player.turned[atacking_creature]
+                    creature2 = self.game.mob.blockers[creature1.id]
+                    print(creature1, creature2)
+                    if creature1 and not creature2:
+                        self.game.mob.life -= creature1.atack
+                        self.game.mob.step = 1
+                    if creature1 and creature2:
+                        res = combat(creature1, creature2)
+                        print(res)
+                        if res[0]:
+                            creature1.kill()
+                        if res[1]:
+                            creature2.kill()
             if self.id == 'block':
                 self.game.player.is_blocking = 1
                 print('button block')
@@ -279,6 +281,14 @@ class Mob(pg.sprite.Sprite):
                 creature1.kill()
         if creature1 and not creature2:
             self.game.player.life -= creature1.atack
+
+    def calc_blockers(self):
+        self.blockers = {}
+        for atacker in self.game.player.turned:
+            try:
+                self.blockers[atacker] = self.in_play.pop()
+            except TypeError:
+                self.blockers[atacker] = None
 
     def update(self):
         self.image.fill(BLACK)
