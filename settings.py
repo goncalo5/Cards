@@ -33,6 +33,14 @@ BUTTON = {
         'font_size': 30,
         'color': RED,
         'pos': (520, 300),
+    },
+    'block': {
+        'id': 'block',
+        'name': 'Block',
+        'size': (100, 60),
+        'font_size': 30,
+        'color': LIGHTBLUE,
+        'pos': (520, 400),
     }
 }
 

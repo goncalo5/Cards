@@ -50,12 +50,8 @@ class Button(pg.sprite.Sprite):
         if pg.mouse.get_pressed() == (1, 0, 0):
             print(self.rect.collidepoint(pg.mouse.get_pos()))
             if self.id == 'deck':
-                print('deck')
                 self.draw_a_card()
             if self.id == 'atack':
-                print('atack')
-                print('self.game.player.turned', self.game.player.turned)
-                print('self.game.mob.in_play', self.game.mob.in_play)
                 creature1 = self.game.player.turned.get('ze_manel')
                 creature2 = self.game.mob.in_play.get('ze_manel')
                 if creature1 and not creature2:
@@ -134,17 +130,14 @@ class Card(pg.sprite.Sprite):
 
     def update(self):
         if self.is_moving:
-            print('self.is_moving')
             self.rect.x = self.target_pos[0]
             self.move_to_pos()
 
         self.events()
 
     def move_to_pos(self):
-        print('13, move_to_pos', self.rect.y, self.target_pos[1], self.rect.y < self.target_pos[1])
         if self.rect.y > self.target_pos[1]:
             self.is_moving = 0
-        print(12, self.rect)
         self.rect.y += 10
 
     def rotate_a_card(self):
@@ -342,6 +335,7 @@ class Game(object):
         self.player = Player(self)
         Button(self, **BUTTON['atack'])
         Button(self, **BUTTON['deck'])
+        Button(self, **BUTTON['block'])
 
     def run(self):
         # game loop - set  self.playing = False to end the game
