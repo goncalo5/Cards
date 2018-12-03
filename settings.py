@@ -89,7 +89,7 @@ CARD = {
     'width': 120,
     'height': 160,
     'font_size': 20,
-    'speed': 5,
+    'speed': 10,
     'name': {
         'color': WHITE,
         'pos': (50, 10)

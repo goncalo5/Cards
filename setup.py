@@ -110,6 +110,7 @@ class Card(pg.sprite.Sprite):
         self.atack = template.atack
         self.defense = template.defense
         self.image = template.image
+        self.speed = CARD['speed']
         if pos is None:
             pos = (0, -300)
         self.rect = template.load_rect(self.image, template.draw, pos)
@@ -146,7 +147,9 @@ class Card(pg.sprite.Sprite):
                 self.is_in_hand = 0
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
-                self.rect.topleft = PLAYER['in_play']['pos']
+                # self.rect.topleft = PLAYER['in_play']['pos']
+                print(555)
+                self.move_to_pos(PLAYER['in_play']['pos'])
 
     def update(self):
         if self.is_moving:
@@ -155,15 +158,25 @@ class Card(pg.sprite.Sprite):
         self.events()
 
     def move_to_pos(self, target_pos=None):
-        print('move_to_pos()')
+        print('move_to_pos()', self.rect, self.target_pos)
         self.is_moving = 1
         if target_pos is not None:
             self.target_pos = target_pos
-        if self.rect.x < self.target_pos[0]:
-            self.rect.x += CARD['speed'] * self.is_moving
-        if self.rect.y < self.target_pos[1]:
-            self.rect.y += CARD['speed'] * self.is_moving
-        if self.rect.y >= self.target_pos[1] and self.rect.x >= self.target_pos[0]:
+        # check directions:
+        self.dx =\
+            self.speed if self.target_pos[0] >= self.rect.x else -self.speed
+        self.dy =\
+            self.speed if self.target_pos[1] >= self.rect.y else -self.speed
+
+        if self.rect.x != self.target_pos[0]:
+            self.rect.x += self.dx
+        if self.rect.y != self.target_pos[1]:
+            self.rect.y += self.dy
+
+        print(self.rect, self.target_pos, self.dx, self.dy)
+        if abs(self.target_pos[0] - self.rect.x) < self.speed and \
+                abs(self.target_pos[1] - self.rect.y) < self.speed:
+            print('STOP MOVING')
             self.is_moving = 0
 
     def rotate(self):
@@ -378,7 +391,6 @@ class Player(pg.sprite.Sprite):
         new_card_template = self.deck.pop()
         deck_pos = BUTTON['deck']['pos']
         new_card = Card(self.game, self, new_card_template, deck_pos)
-        # new_card.target_pos = PLAYER['hand']['pos']
         new_card.move_to_pos(PLAYER['hand']['pos'])
         self.hand[new_card.id] = new_card
 
