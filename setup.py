@@ -150,15 +150,18 @@ class Card(pg.sprite.Sprite):
 
     def update(self):
         if self.is_moving:
-            self.rect.x = self.target_pos[0]
             self.move_to_pos()
 
         self.events()
 
     def move_to_pos(self):
-        if self.rect.y > self.target_pos[1]:
+        print('move_to_pos()')
+        if self.rect.x < self.target_pos[0]:
+            self.rect.x += CARD['speed'] * self.is_moving
+        if self.rect.y < self.target_pos[1]:
+            self.rect.y += CARD['speed'] * self.is_moving
+        if self.rect.y >= self.target_pos[1] and self.rect.x >= self.target_pos[0]:
             self.is_moving = 0
-        self.rect.y += CARD['speed'] * self.is_moving
 
     def rotate(self):
         self.image = pg.transform.rotate(self.image, 90 * self.is_up)
@@ -370,7 +373,11 @@ class Player(pg.sprite.Sprite):
 
     def draw_a_card(self):
         new_card_template = self.deck.pop()
-        new_card = Card(self.game, self, new_card_template, PLAYER['hand']['pos'])
+        deck_pos = BUTTON['deck']['pos']
+        new_card = Card(self.game, self, new_card_template, deck_pos)
+        new_card.target_pos = PLAYER['hand']['pos']
+        new_card.is_moving = 1
+        new_card.move_to_pos()
         self.hand[new_card.id] = new_card
 
     def play_a_card(self, card):
