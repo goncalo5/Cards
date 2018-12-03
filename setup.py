@@ -154,8 +154,11 @@ class Card(pg.sprite.Sprite):
 
         self.events()
 
-    def move_to_pos(self):
+    def move_to_pos(self, target_pos=None):
         print('move_to_pos()')
+        self.is_moving = 1
+        if target_pos is not None:
+            self.target_pos = target_pos
         if self.rect.x < self.target_pos[0]:
             self.rect.x += CARD['speed'] * self.is_moving
         if self.rect.y < self.target_pos[1]:
@@ -375,9 +378,8 @@ class Player(pg.sprite.Sprite):
         new_card_template = self.deck.pop()
         deck_pos = BUTTON['deck']['pos']
         new_card = Card(self.game, self, new_card_template, deck_pos)
-        new_card.target_pos = PLAYER['hand']['pos']
-        new_card.is_moving = 1
-        new_card.move_to_pos()
+        # new_card.target_pos = PLAYER['hand']['pos']
+        new_card.move_to_pos(PLAYER['hand']['pos'])
         self.hand[new_card.id] = new_card
 
     def play_a_card(self, card):
