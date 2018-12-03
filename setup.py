@@ -77,16 +77,18 @@ class Button(pg.sprite.Sprite):
             if self.id == 'block':
                 self.game.player.is_blocking = 1
                 print('button block')
-                if self.game.player.in_play:
-                    creature1 = self.game.mob.turned.get('ze_manel')
-                    creature2 = self.game.player.in_play.get('ze_manel')
-                    print(creature1, creature2)
-                    res = combat(creature1, creature2)
-                    print (res)
-                    if res[0]:
-                        creature1.kill()
-                    if res[1]:
-                        creature2.kill()
+                # if self.game.player.in_play:
+                for blocking_creature in self.game.player.in_play.values():
+                    for atacking_creature in self.game.mob.turned.values():
+                        creature1 = atacking_creature
+                        creature2 = blocking_creature
+                        print(creature1, creature2)
+                        res = combat(creature1, creature2)
+                        print (res)
+                        if res[0]:
+                            creature1.kill()
+                        if res[1]:
+                            creature2.kill()
             if self.id == 'pass':
                 print('button pass')
                 self.game.mob.step += 1
@@ -113,7 +115,7 @@ class Card(pg.sprite.Sprite):
         self.rect = template.load_rect(self.image, template.draw, pos)
 
         for label in ['name', 'type', 'atack', 'defense']:
-            draw_text(self.image, CARDS['ze_manel'][label], CARD['font_size'],
+            draw_text(self.image, CARDS[self.id][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
 
         self.time_to_unpress = pg.time.get_ticks()
@@ -221,6 +223,8 @@ class Mob(pg.sprite.Sprite):
     def new_turn(self):
         self.step = 0
         self.wait = 1
+        # self.game.player.is_your_turn = 0
+        self.is_your_turn = 1
         self.card_to_play = None
         for turned_card in self.turned:
             self.unturn_a_card(turned_card)
@@ -265,21 +269,22 @@ class Mob(pg.sprite.Sprite):
 
     def atack_the_player(self):
         print('atack_the_player()')
-        creature1 = self.turned.get('ze_manel')
-        if not self.game.player.is_blocking:
-            self.game.player.life -= creature1.atack
-            self.step = 0
-            self.wait = 1
-            return
-        creature2 = self.game.player.in_play.get('ze_manel')
-        if creature1 and creature2:
-            res = combat(creature1, creature2)
-            print(res)
-            if res[1]:
-                creature2.kill()
-            if res[0]:
-                creature1.kill()
-        if creature1 and not creature2:
+        for atacking_creature in self.turned.values():
+            creature1 = atacking_creature
+            if not self.game.player.is_blocking:
+                self.game.player.life -= creature1.atack
+                self.step = 0
+                self.wait = 1
+                continue
+            for blocking_creature in self.game.player.in_play.values():
+                creature2 = blocking_creature
+                res = combat(creature1, creature2)
+                print(res)
+                if res[1]:
+                    creature2.kill()
+                if res[0]:
+                    creature1.kill()
+                continue
             self.game.player.life -= creature1.atack
 
     def calc_blockers(self):
@@ -355,6 +360,8 @@ class Player(pg.sprite.Sprite):
         print('new_turn()')
         self.can_draw = 1
         self.is_blocking = 0
+        self.game.mob.is_your_turn = 0
+        self.is_your_turn = 1
         cards_to_unturn = []
         for turned_card in self.turned:
             cards_to_unturn.append(turned_card)

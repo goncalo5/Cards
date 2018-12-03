@@ -111,7 +111,7 @@ CARD = {
 CARDS = {
     'ze_manel': {
         'id': 'ze_manel',
-        'name': 'ze manel',
+        'name': 'Ze Manel',
         'type': 'human',
         'img_dir': 'imgs',
         'img': 'p1_front.png',
