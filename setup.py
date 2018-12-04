@@ -48,6 +48,7 @@ class Button(pg.sprite.Sprite):
             return
 
         if pg.mouse.get_pressed() == (1, 0, 0):
+            self.time_to_unpress = pg.time.get_ticks()
             if self.id == 'new_game':
                 self.game.new()
                 self.kill()
@@ -91,9 +92,10 @@ class Button(pg.sprite.Sprite):
                             creature2.kill()
             if self.id == 'pass':
                 print('button pass')
+                if self.game.mob.step == 0:
+                    self.game.player.end_turn()
+                    self.game.mob.new_turn()
                 self.game.mob.step += 1
-
-            self.time_to_unpress = pg.time.get_ticks()
 
     def update(self):
         self.events()
@@ -145,9 +147,9 @@ class Card(pg.sprite.Sprite):
             if self.is_in_play:
                 # print(11111)
                 # self.rotate()
-                if self.is_up == 1:
+                if self.is_up == 1 and not self.is_rotating and self.owner.is_your_turn:
                     self.game.player.turn_a_card(self)
-                else:
+                elif self.is_up == -1 and not self.is_rotating and self.owner.is_your_turn:
                     self.game.player.unturn_a_card(self)
             if self.is_in_hand:
                 # print(22222)
@@ -192,21 +194,21 @@ class Card(pg.sprite.Sprite):
         self.is_up *= -1
 
     def rotate_to_angle(self, target_angle=None):
-        print('rotate_to_angle()', self.rect, target_angle, self.target_angle, self.current_angle)
+        # print('rotate_to_angle()', self.rect, target_angle, self.target_angle, self.current_angle)
         self.is_rotating = 1
         if target_angle is not None:
             self.target_angle = target_angle
 
         self.dalpha = self.rotate_speed if self.target_angle >= self.current_angle else -self.rotate_speed
         self.current_angle += self.dalpha
-        print(333, self.current_angle)
+        # print(333, self.current_angle)
         self.current_angle %= 360
-        print(666, self.current_angle)
+        # print(666, self.current_angle)
         self.image = pg.transform.rotate(self.template.image, self.current_angle)
         # self.rect.y += (self.rect.height - self.rect.width) * self.is_up
-        print(4444, self.target_angle, self.current_angle)
+        # print(4444, self.target_angle, self.current_angle)
         if abs(self.target_angle - self.current_angle) <= 2:
-            print('STOP')
+            # print('STOP')
             self.is_up *= -1
             self.is_rotating = 0
 
@@ -294,6 +296,7 @@ class Mob(pg.sprite.Sprite):
         if card_to_play is not None:
             self.in_play[card_to_play.id] = card_to_play
             card_to_play.image = pg.transform.rotate(card_to_play.image, 180)
+            card_to_play.current_angle = 180
             card_to_play.target_pos = MOB['in_play']['pos']
 
     def turn_a_card(self, card):
@@ -304,7 +307,8 @@ class Mob(pg.sprite.Sprite):
             return
         if card_to_turn is not None:
             self.turned[card_to_turn.id] = card_to_turn
-            card_to_turn.rotate()
+            card_to_turn.rotate_to_angle(270)
+            # card_to_turn.rotate()
 
     def unturn_a_card(self, card):
         if type(card) != str:
@@ -332,6 +336,9 @@ class Mob(pg.sprite.Sprite):
                 continue
             self.game.player.life -= creature1.atack
 
+    def end_turn(self):
+        self.is_your_turn = 0
+
     def calc_blockers(self):
         self.blockers = {}
         for atacker in self.game.player.turned:
@@ -349,6 +356,7 @@ class Mob(pg.sprite.Sprite):
 
         if self.step == 1:
             # print('step', self.step)
+
             self.draw_a_card()
             self.card_to_play.is_moving = True
             self.wait = 0
@@ -369,6 +377,7 @@ class Mob(pg.sprite.Sprite):
         if self.step == 4:
             # print('step', self.step)
             self.atack_the_player()
+            self.end_turn()
             self.game.player.new_turn()
 
 
@@ -410,7 +419,6 @@ class Player(pg.sprite.Sprite):
         cards_to_unturn = []
         for turned_card in self.turned:
             cards_to_unturn.append(turned_card)
-        print(5, cards_to_unturn)
         [self.unturn_a_card(card) for card in cards_to_unturn]
 
     def draw_a_card(self):
@@ -437,16 +445,21 @@ class Player(pg.sprite.Sprite):
 
     def unturn_a_card(self, card):
         print('\n\n\n\n')
-        print('unturn_a_card()')
+        print('unturn_a_card()', self.turned)
         if type(card) != str:
             card = card.id
-        new_card = self.turned.pop(card)
-        self.in_play[new_card.id] = new_card
-        # new_card.rotate()
-        new_card.rotate_to_angle(0)
+        if self.is_your_turn:
+            new_card = self.turned.pop(card)
+            self.in_play[new_card.id] = new_card
+            # new_card.rotate()
+            new_card.rotate_to_angle(0)
 
     def atack_the_player(self):
         pass
+
+    def end_turn(self):
+        print('end_turn()')
+        self.is_your_turn = 0
 
 
 class Menu(object):
@@ -530,6 +543,11 @@ class Game(object):
     def update(self):
         # update portion of the game loop
         self.all_sprites.update()
+        try:
+            print(self.player.is_your_turn, self.mob.is_your_turn)
+        except:
+
+            pass
 
     def draw(self):
         pg.display.set_caption('%s - fps: %.5s' %
