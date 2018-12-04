@@ -65,7 +65,7 @@ PLAYER = {
     'layer': 2,
     'size': (100, 30),
     'pos': (10, DISPLAY['height'] - 100),
-    'life': 2,
+    'life': 3,
     'hand': {
         'pos': (150, DISPLAY['height'] - 210)
     },

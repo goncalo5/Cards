@@ -106,13 +106,13 @@ class Button(pg.sprite.Sprite):
 
 
 class Card(pg.sprite.Sprite):
-    def __init__(self, game, owner, template, pos=None):
+    def __init__(self, game, owner, template, id, pos=None):
         self.groups = game.all_sprites, game.cards
         super(Card, self).__init__(self.groups)
         self.game = game
         self.owner = owner
         self.template = template
-        self.id = template.id
+        self.id = id
         self.atack = template.atack
         self.defense = template.defense
         self.image = template.image
@@ -123,7 +123,7 @@ class Card(pg.sprite.Sprite):
         self.rect = template.load_rect(self.image, template.draw, pos)
 
         for label in ['name', 'type', 'atack', 'defense']:
-            draw_text(self.image, CARDS[self.id][label], CARD['font_size'],
+            draw_text(self.image, CARDS[template.id][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
 
         self.time_to_unpress = pg.time.get_ticks()
@@ -147,6 +147,7 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
+            print('press card', self.time_to_unpress)
 
             if self.is_in_play:
                 # print(11111)
@@ -264,6 +265,7 @@ class Mob(pg.sprite.Sprite):
         self.in_play = {}
         self.turned = {}
         self.atacking = {}
+        self.card_id = 0
 
         self.image = pg.Surface(MOB['size'])
         self.rect = self.image.get_rect()
@@ -272,7 +274,7 @@ class Mob(pg.sprite.Sprite):
         self.new_turn()
 
     def new_turn(self):
-        print('mob new_turn()')
+        print('mob new_turn()', self.turned)
         self.step = 0
         self.wait = 1
         # self.game.player.is_your_turn = 0
@@ -287,9 +289,10 @@ class Mob(pg.sprite.Sprite):
             new_card_template = self.deck.pop()
         except IndexError:
             return
-        new_card = Card(self.game, self, new_card_template)
-        self.hand[new_card_template.id] = new_card
+        new_card = Card(self.game, self, new_card_template, self.card_id)
+        self.hand[self.card_id] = new_card
         self.card_to_play = self.hand[new_card.id]
+        self.card_id += 1
 
     def play_a_card(self, card):
         print('mob play_a_card()')
@@ -316,7 +319,7 @@ class Mob(pg.sprite.Sprite):
             # card_to_turn.rotate()
 
     def unturn_a_card(self, card):
-        if type(card) != str:
+        if type(card) not in [str, int]:
             card = card.id
         new_card = self.turned.pop(card)
         self.in_play[new_card.id] = new_card
@@ -401,6 +404,7 @@ class Player(pg.sprite.Sprite):
         self.in_play = {}
         self.turned = {}
         self.atacking = {}
+        self.card_id = 0
 
         self.image = pg.Surface(PLAYER['size'])
         self.rect = self.image.get_rect()
@@ -432,20 +436,22 @@ class Player(pg.sprite.Sprite):
         print('player draw_a_card()')
         new_card_template = self.deck.pop()
         deck_pos = BUTTON['deck']['pos']
-        new_card = Card(self.game, self, new_card_template, deck_pos)
+        new_card =\
+            Card(self.game, self, new_card_template, self.card_id, deck_pos)
+        self.card_id += 1
         new_card.move_to_pos(PLAYER['hand']['pos'])
         self.hand[new_card.id] = new_card
 
     def play_a_card(self, card):
-        print('player play_a_card()')
-        if type(card) != str:
+        print('player play_a_card()', self.hand)
+        if type(card) not in [str, int]:
             card = card.id
         new_card = self.hand.pop(card)
         self.in_play[new_card.id] = new_card
 
     def turn_a_card(self, card):
         print('player turn_a_card()')
-        if type(card) != str:
+        if type(card) not in [str, int]:
             card = card.id
         new_card = self.in_play.pop(card)
         self.turned[new_card.id] = new_card
@@ -453,8 +459,8 @@ class Player(pg.sprite.Sprite):
         new_card.rotate_to_angle(90)
 
     def unturn_a_card(self, card):
-        print('unturn_a_card()', self.turned)
-        if type(card) != str:
+        print('unturn_a_card()', self.turned, card)
+        if type(card) not in [str, int]:
             card = card.id
         if self.is_your_turn:
             new_card = self.turned.pop(card)
