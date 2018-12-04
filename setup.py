@@ -175,9 +175,9 @@ class Card(pg.sprite.Sprite):
         self.dy =\
             self.speed if self.target_pos[1] >= self.rect.y else -self.speed
 
-        if self.rect.x != self.target_pos[0]:
+        if abs(self.rect.x - self.target_pos[0]) > self.speed / 2.:
             self.rect.x += self.dx
-        if self.rect.y != self.target_pos[1]:
+        if abs(self.rect.y - self.target_pos[1]) > self.speed / 2.:
             self.rect.y += self.dy
 
         # print(self.rect, self.target_pos, self.dx, self.dy)
@@ -205,7 +205,7 @@ class Card(pg.sprite.Sprite):
         self.image = pg.transform.rotate(self.template.image, self.current_angle)
         # self.rect.y += (self.rect.height - self.rect.width) * self.is_up
         print(4444, self.target_angle, self.current_angle)
-        if abs(self.target_angle - self.current_angle) == 0:
+        if abs(self.target_angle - self.current_angle) <= 2:
             print('STOP')
             self.is_up *= -1
             self.is_rotating = 0
