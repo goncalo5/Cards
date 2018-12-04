@@ -111,6 +111,7 @@ class Card(pg.sprite.Sprite):
         self.defense = template.defense
         self.image = template.image
         self.speed = CARD['speed']
+        self.rotate_speed = CARD['rotate_speed']
         if pos is None:
             pos = (0, -300)
         self.rect = template.load_rect(self.image, template.draw, pos)
@@ -131,7 +132,7 @@ class Card(pg.sprite.Sprite):
         self.is_rotating = 0
 
     def events(self):
-        print('events()', self.is_in_hand, self.is_in_play)
+        # print('events()', self.is_in_hand, self.is_in_play)
         if pg.time.get_ticks() - self.time_to_unpress < 300:
             return
 
@@ -142,14 +143,14 @@ class Card(pg.sprite.Sprite):
             self.time_to_unpress = pg.time.get_ticks()
 
             if self.is_in_play:
-                print(11111)
+                # print(11111)
                 # self.rotate()
                 if self.is_up == 1:
                     self.game.player.turn_a_card(self)
                 else:
                     self.game.player.unturn_a_card(self)
             if self.is_in_hand:
-                print(22222)
+                # print(22222)
                 self.is_in_hand = 0
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
@@ -164,7 +165,7 @@ class Card(pg.sprite.Sprite):
         self.events()
 
     def move_to_pos(self, target_pos=None):
-        print('move_to_pos()', self.rect, self.target_pos)
+        # print('move_to_pos()', self.rect, self.target_pos)
         self.is_moving = 1
         if target_pos is not None:
             self.target_pos = target_pos
@@ -179,10 +180,10 @@ class Card(pg.sprite.Sprite):
         if self.rect.y != self.target_pos[1]:
             self.rect.y += self.dy
 
-        print(self.rect, self.target_pos, self.dx, self.dy)
+        # print(self.rect, self.target_pos, self.dx, self.dy)
         if abs(self.target_pos[0] - self.rect.x) < self.speed and \
                 abs(self.target_pos[1] - self.rect.y) < self.speed:
-            print('STOP MOVING')
+            # print('STOP MOVING')
             self.is_moving = 0
 
     def rotate(self):
@@ -195,13 +196,16 @@ class Card(pg.sprite.Sprite):
         self.is_rotating = 1
         if target_angle is not None:
             self.target_angle = target_angle
-        self.dalpha = self.speed / 5.
+
+        self.dalpha = self.rotate_speed if self.target_angle >= self.current_angle else -self.rotate_speed
         self.current_angle += self.dalpha
+        print(333, self.current_angle)
         self.current_angle %= 360
-        self.image = pg.transform.rotate(self.template.image, self.current_angle * self.is_up)
+        print(666, self.current_angle)
+        self.image = pg.transform.rotate(self.template.image, self.current_angle)
         # self.rect.y += (self.rect.height - self.rect.width) * self.is_up
         print(4444, self.target_angle, self.current_angle)
-        if abs(self.target_angle - self.current_angle) <= 0:
+        if abs(self.target_angle - self.current_angle) == 0:
             print('STOP')
             self.is_up *= -1
             self.is_rotating = 0
@@ -432,12 +436,14 @@ class Player(pg.sprite.Sprite):
         new_card.rotate_to_angle(90)
 
     def unturn_a_card(self, card):
+        print('\n\n\n\n')
         print('unturn_a_card()')
         if type(card) != str:
             card = card.id
         new_card = self.turned.pop(card)
         self.in_play[new_card.id] = new_card
-        new_card.rotate()
+        # new_card.rotate()
+        new_card.rotate_to_angle(0)
 
     def atack_the_player(self):
         pass

@@ -90,6 +90,7 @@ CARD = {
     'height': 160,
     'font_size': 20,
     'speed': 10,
+    'rotate_speed': 2,
     'name': {
         'color': WHITE,
         'pos': (50, 10)
