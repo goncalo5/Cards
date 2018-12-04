@@ -263,7 +263,7 @@ class Mob(pg.sprite.Sprite):
         self.game = game
         self.life = MOB['life']
 
-        self.deck = [TemplateCards.fire_salamander]
+        self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
         self.hand = {}
         self.in_play = {}
         self.turned = {}
@@ -283,8 +283,13 @@ class Mob(pg.sprite.Sprite):
         # self.game.player.is_your_turn = 0
         self.is_your_turn = 1
         self.card_to_play = None
+        # for turned_card in self.turned:
+        #     self.unturn_a_card(turned_card)
+
+        cards_to_unturn = []
         for turned_card in self.turned:
-            self.unturn_a_card(turned_card)
+            cards_to_unturn.append(turned_card)
+        [self.unturn_a_card(card) for card in cards_to_unturn]
 
     def draw_a_card(self):
         print('mob draw_a_card()')
@@ -308,7 +313,11 @@ class Mob(pg.sprite.Sprite):
             self.in_play[card_to_play.id] = card_to_play
             card_to_play.image = pg.transform.rotate(card_to_play.image, 180)
             card_to_play.current_angle = 180
-            card_to_play.target_pos = MOB['in_play']['pos']
+            # card_to_play.target_pos = MOB['in_play']['pos']
+
+            target_pos = list(MOB['in_play']['pos'])
+            target_pos[0] += CARD['size'][1] * card_to_play.id
+            card_to_play.target_pos = target_pos
 
     def turn_a_card(self, card):
         print('mob turn_a_card()')
