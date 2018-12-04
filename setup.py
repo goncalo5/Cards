@@ -255,6 +255,14 @@ class TemplateCards(object):
         cls.ze_manel = TemplateCard(**CARDS['ze_manel'])
         cls.fire_salamander = TemplateCard(**CARDS['fire_salamander'])
         cls.bird = TemplateCard(**CARDS['bird'])
+        cls.bird_of_prey = TemplateCard(**CARDS['bird_of_prey'])
+        cls.war_horse = TemplateCard(**CARDS['war_horse'])
+        cls.snake_constrictor = TemplateCard(**CARDS['snake_constrictor'])
+        cls.socket_man = TemplateCard(**CARDS['socket_man'])
+        cls.electric_bird = TemplateCard(**CARDS['electric_bird'])
+        cls.electric_up_dog = TemplateCard(**CARDS['electric_up_dog'])
+        cls.electric_dog = TemplateCard(**CARDS['electric_dog'])
+        cls.electric_rat = TemplateCard(**CARDS['electric_rat'])
 
 
 class Mob(pg.sprite.Sprite):
@@ -416,7 +424,12 @@ class Player(pg.sprite.Sprite):
         self.life = PLAYER['life']
 
         self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
-                     TemplateCards.bird]
+                     TemplateCards.bird, TemplateCards.bird_of_prey,
+                     TemplateCards.war_horse, TemplateCards.snake_constrictor,
+                     TemplateCards.socket_man, TemplateCards.electric_bird,
+                     TemplateCards.electric_up_dog, TemplateCards.electric_dog,
+                     TemplateCards.electric_rat
+                     ]
         self.hand = {}
         self.in_play = {}
         self.turned = {}

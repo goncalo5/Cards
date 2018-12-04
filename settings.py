@@ -65,7 +65,7 @@ PLAYER = {
     'layer': 2,
     'size': (100, 30),
     'pos': (10, DISPLAY['height'] - 100),
-    'life': 3,
+    'life': 10,
     'hand': {
         'pos': (150, DISPLAY['height'] - 210)
     },
@@ -77,7 +77,7 @@ PLAYER = {
 MOB = {
     'size': (100, 30),
     'pos': (10, 10),
-    'life': 4,
+    'life': 10,
     'in_play': {
         'pos': (150, 10)
     }
@@ -117,8 +117,48 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'p1_front.png',
         'size': (66, 92),
-        'atack': 1,
+        'atack': 2,
+        'defense': 2
+    },
+    'bird_of_prey': {
+        'id': 'bird_of_prey',
+        'name': 'bird of prey',
+        'type': 'bird',
+        'img_dir': 'imgs',
+        'img': 'ave-rapina.png',
+        'size': (98, 96),
+        'atack': 0,
         'defense': 1
+    },
+    'war_horse': {
+        'id': 'war_horse',
+        'name': 'War Horse',
+        'type': 'horse',
+        'img_dir': 'imgs',
+        'img': 'cavalo.de.guerra.2.png',
+        'size': (57, 100),
+        'atack': 2,
+        'defense': 3
+    },
+    'snake_constrictor': {
+        'id': 'snake_constrictor',
+        'name': 'Snake Constrictor',
+        'type': 'snake',
+        'img_dir': 'imgs',
+        'img': 'cobra-constritora.6.png',
+        'size': (80, 100),
+        'atack': 2,
+        'defense': 2
+    },
+    'bird': {
+        'id': 'bird',
+        'name': 'Bird',
+        'type': 'vento',
+        'img_dir': 'imgs',
+        'img': 'vento-08.5.png',
+        'size': (102, 100),
+        'atack': 1,
+        'defense': 2
     },
     'fire_salamander': {
         'id': 'fire_salamander',
@@ -130,14 +170,54 @@ CARDS = {
         'atack': 2,
         'defense': 1
     },
-    'bird': {
-        'id': 'bird',
-        'name': 'Bird',
-        'type': 'normal',
+    'socket_man': {
+        'id': 'socket_man',
+        'name': 'Socket Man',
+        'type': 'electric',
         'img_dir': 'imgs',
-        'img': 'vento-08.5.png',
-        'size': (102, 100),
-        'atack': 1,
+        'img': 'elétrico-02.5.png',
+        'size': (101, 106),
+        'atack': 5,
+        'defense': 3
+    },
+    'electric_bird': {
+        'id': 'electric_bird',
+        'name': 'Electric Bird',
+        'type': 'electric',
+        'img_dir': 'imgs',
+        'img': 'elétrico-03.png',
+        'size': (117, 79),
+        'atack': 3,
+        'defense': 1
+    },
+    'electric_up_dog': {
+        'id': 'electric_up_dog',
+        'name': 'Electric Up Dog',
+        'type': 'electric',
+        'img_dir': 'imgs',
+        'img': 'elétrico-04.png',
+        'size': (89, 99),
+        'atack': 3,
+        'defense': 3
+    },
+    'electric_dog': {
+        'id': 'electric_dog',
+        'name': 'Electric Dog',
+        'type': 'electric',
+        'img_dir': 'imgs',
+        'img': 'elétrico-08.png',
+        'size': (103, 87),
+        'atack': 3,
         'defense': 2
-    }
+    },
+    'electric_rat': {
+        'id': 'electric_rat',
+        'name': 'Electric Rat',
+        'type': 'electric',
+        'img_dir': 'imgs',
+        'img': 'elétrico-10.png',
+        'size': (67, 100),
+        'atack': 2,
+        'defense': 1
+    },
 }
