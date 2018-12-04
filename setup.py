@@ -361,6 +361,9 @@ class Mob(pg.sprite.Sprite):
         self.image.fill(BLACK)
         draw_text(self.image, 'life: %s' % self.life, 30, GREEN,
                   (self.rect.width / 2, 10))
+        if self.life <= 0:
+            print('Game Over')
+            Menu(self.game)
         if not self.wait:
             self.step += 1
 
