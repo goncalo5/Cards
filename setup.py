@@ -53,7 +53,9 @@ class Button(pg.sprite.Sprite):
                 self.game.new()
                 self.kill()
             if self.id == 'deck':
+                print('button deck')
                 if self.game.player.can_draw:
+                    print('player.can_draw')
                     self.game.player.draw_a_card()
                     self.game.player.can_draw = 0
                 if not self.game.player.deck:
@@ -90,6 +92,8 @@ class Button(pg.sprite.Sprite):
                             creature1.kill()
                         if res[1]:
                             creature2.kill()
+                self.game.mob.end_turn()
+                self.game.player.new_turn()
             if self.id == 'pass':
                 print('button pass')
                 if self.game.mob.step == 0:
@@ -268,6 +272,7 @@ class Mob(pg.sprite.Sprite):
         self.new_turn()
 
     def new_turn(self):
+        print('mob new_turn()')
         self.step = 0
         self.wait = 1
         # self.game.player.is_your_turn = 0
@@ -277,7 +282,7 @@ class Mob(pg.sprite.Sprite):
             self.unturn_a_card(turned_card)
 
     def draw_a_card(self):
-        print('draw_a_card()')
+        print('mob draw_a_card()')
         try:
             new_card_template = self.deck.pop()
         except IndexError:
@@ -287,7 +292,7 @@ class Mob(pg.sprite.Sprite):
         self.card_to_play = self.hand[new_card.id]
 
     def play_a_card(self, card):
-        print('play_a_card()')
+        print('mob play_a_card()')
         try:
             card_to_play = self.hand.pop(card)
         except KeyError:
@@ -300,7 +305,7 @@ class Mob(pg.sprite.Sprite):
             card_to_play.target_pos = MOB['in_play']['pos']
 
     def turn_a_card(self, card):
-        print('turn_a_card()')
+        print('mob turn_a_card()')
         try:
             card_to_turn = self.in_play.pop(card)
         except KeyError:
@@ -317,7 +322,7 @@ class Mob(pg.sprite.Sprite):
         self.in_play[new_card.id] = new_card
 
     def atack_the_player(self):
-        print('atack_the_player()')
+        print('mob atack_the_player()')
         for atacking_creature in self.turned.values():
             creature1 = atacking_creature
             if not self.game.player.is_blocking:
@@ -337,7 +342,9 @@ class Mob(pg.sprite.Sprite):
             self.game.player.life -= creature1.atack
 
     def end_turn(self):
+        print('mob end_turn()')
         self.is_your_turn = 0
+        self.step = 0
 
     def calc_blockers(self):
         self.blockers = {}
@@ -355,27 +362,27 @@ class Mob(pg.sprite.Sprite):
             self.step += 1
 
         if self.step == 1:
-            # print('step', self.step)
+            print('step', self.step)
 
             self.draw_a_card()
             self.card_to_play.is_moving = True
             self.wait = 0
         if self.step == 2:
-            # print('step', self.step)
+            print('step', self.step)
             if not self.wait:
                 self.wait = 1
                 self.play_a_card(self.card_to_play.id)
             if not self.card_to_play.is_moving:
                 self.wait = 0
         if self.step == 3:
-            # print('step', self.step)
+            print('step', self.step)
             if not self.wait:
                 self.turn_a_card(self.card_to_play.id)
                 self.wait = 1
             if not self.game.player.in_play:
                 self.wait = 0
         if self.step == 4:
-            # print('step', self.step)
+            print('step', self.step)
             self.atack_the_player()
             self.end_turn()
             self.game.player.new_turn()
@@ -389,7 +396,7 @@ class Player(pg.sprite.Sprite):
         self.game = game
         self.life = PLAYER['life']
 
-        self.deck = [TemplateCards.ze_manel]
+        self.deck = [TemplateCards.ze_manel, TemplateCards.ze_manel]
         self.hand = {}
         self.in_play = {}
         self.turned = {}
@@ -411,7 +418,7 @@ class Player(pg.sprite.Sprite):
             Menu(self.game)
 
     def new_turn(self):
-        print('new_turn()')
+        print('player new_turn()')
         self.can_draw = 1
         self.is_blocking = 0
         self.game.mob.is_your_turn = 0
@@ -422,6 +429,7 @@ class Player(pg.sprite.Sprite):
         [self.unturn_a_card(card) for card in cards_to_unturn]
 
     def draw_a_card(self):
+        print('player draw_a_card()')
         new_card_template = self.deck.pop()
         deck_pos = BUTTON['deck']['pos']
         new_card = Card(self.game, self, new_card_template, deck_pos)
@@ -429,13 +437,14 @@ class Player(pg.sprite.Sprite):
         self.hand[new_card.id] = new_card
 
     def play_a_card(self, card):
+        print('player play_a_card()')
         if type(card) != str:
             card = card.id
         new_card = self.hand.pop(card)
         self.in_play[new_card.id] = new_card
 
     def turn_a_card(self, card):
-        print('turn_a_card()')
+        print('player turn_a_card()')
         if type(card) != str:
             card = card.id
         new_card = self.in_play.pop(card)
@@ -444,7 +453,6 @@ class Player(pg.sprite.Sprite):
         new_card.rotate_to_angle(90)
 
     def unturn_a_card(self, card):
-        print('\n\n\n\n')
         print('unturn_a_card()', self.turned)
         if type(card) != str:
             card = card.id
@@ -458,7 +466,7 @@ class Player(pg.sprite.Sprite):
         pass
 
     def end_turn(self):
-        print('end_turn()')
+        print('player end_turn()')
         self.is_your_turn = 0
 
 
@@ -544,9 +552,10 @@ class Game(object):
         # update portion of the game loop
         self.all_sprites.update()
         try:
-            print(self.player.is_your_turn, self.mob.is_your_turn)
+            pass
+            # print('player.can_draw:', self.player.can_draw,)
+            # print('player.can_draw:', self.player.can_draw)
         except:
-
             pass
 
     def draw(self):
