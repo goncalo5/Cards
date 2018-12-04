@@ -3,7 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, RED, GREEN
+from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(creature1, creature2):
@@ -225,6 +225,7 @@ class TemplateCard(object):
         self.type = kwargs.get('type')
         self.atack = kwargs.get('atack')
         self.defense = kwargs.get('defense')
+        self.size = kwargs.get('size')
 
         self.load_a_card()
 
@@ -234,6 +235,7 @@ class TemplateCard(object):
         self.image_dir = path.join(path.dirname(__file__), CARDS[self.id]['img_dir'])
         self.image_path = path.join(self.image_dir, CARDS[self.id]['img'])
         self.draw = pg.image.load(self.image_path).convert_alpha()
+        self.draw = pg.transform.scale(self.draw, self.size)
 
     @classmethod
     def load_rect(cls, image, draw, pos):
@@ -251,6 +253,7 @@ class TemplateCards(object):
     def load_all_cards(cls):
 
         cls.ze_manel = TemplateCard(**CARDS['ze_manel'])
+        cls.fire_salamander = TemplateCard(**CARDS['fire_salamander'])
 
 
 class Mob(pg.sprite.Sprite):
@@ -260,7 +263,7 @@ class Mob(pg.sprite.Sprite):
         self.game = game
         self.life = MOB['life']
 
-        self.deck = [TemplateCards.ze_manel]
+        self.deck = [TemplateCards.fire_salamander]
         self.hand = {}
         self.in_play = {}
         self.turned = {}
@@ -402,7 +405,7 @@ class Player(pg.sprite.Sprite):
         self.game = game
         self.life = PLAYER['life']
 
-        self.deck = [TemplateCards.ze_manel, TemplateCards.ze_manel]
+        self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander]
         self.hand = {}
         self.in_play = {}
         self.turned = {}

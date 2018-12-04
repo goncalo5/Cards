@@ -77,7 +77,7 @@ PLAYER = {
 MOB = {
     'size': (100, 30),
     'pos': (10, 10),
-    'life': 2,
+    'life': 4,
     'in_play': {
         'pos': (150, 10)
     }
@@ -116,7 +116,18 @@ CARDS = {
         'type': 'human',
         'img_dir': 'imgs',
         'img': 'p1_front.png',
+        'size': (66, 92),
         'atack': 1,
+        'defense': 1
+    },
+    'fire_salamander': {
+        'id': 'fire_salamander',
+        'name': 'Fire Salamander',
+        'type': 'human',
+        'img_dir': 'imgs',
+        'img': 'fogo-05.2.jpg',
+        'size': (127, 74),
+        'atack': 2,
         'defense': 1
     }
 }
