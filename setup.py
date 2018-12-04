@@ -161,7 +161,7 @@ class Card(pg.sprite.Sprite):
                 self.is_in_hand = 0
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
-                self.move_to_pos(PLAYER['in_play']['pos'])
+                # self.move_to_pos(PLAYER['in_play']['pos'])
 
     def update(self):
         if self.is_moving:
@@ -438,9 +438,11 @@ class Player(pg.sprite.Sprite):
         deck_pos = BUTTON['deck']['pos']
         new_card =\
             Card(self.game, self, new_card_template, self.card_id, deck_pos)
-        self.card_id += 1
-        new_card.move_to_pos(PLAYER['hand']['pos'])
+        target_pos = list(PLAYER['hand']['pos'])
+        target_pos[0] += CARD['size'][1] * new_card.id
+        new_card.move_to_pos(target_pos)
         self.hand[new_card.id] = new_card
+        self.card_id += 1
 
     def play_a_card(self, card):
         print('player play_a_card()', self.hand)
@@ -448,6 +450,9 @@ class Player(pg.sprite.Sprite):
             card = card.id
         new_card = self.hand.pop(card)
         self.in_play[new_card.id] = new_card
+        target_pos = list(PLAYER['in_play']['pos'])
+        target_pos[0] += CARD['size'][1] * new_card.id
+        new_card.move_to_pos(target_pos)
 
     def turn_a_card(self, card):
         print('player turn_a_card()')
