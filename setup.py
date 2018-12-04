@@ -126,8 +126,12 @@ class Card(pg.sprite.Sprite):
         self.is_atacking = 0
         self.is_moving = 0
         self.target_pos = pos
+        self.target_angle = 0
+        self.current_angle = 0
+        self.is_rotating = 0
 
     def events(self):
+        print('events()', self.is_in_hand, self.is_in_play)
         if pg.time.get_ticks() - self.time_to_unpress < 300:
             return
 
@@ -138,22 +142,24 @@ class Card(pg.sprite.Sprite):
             self.time_to_unpress = pg.time.get_ticks()
 
             if self.is_in_play:
+                print(11111)
                 # self.rotate()
                 if self.is_up == 1:
                     self.game.player.turn_a_card(self)
                 else:
                     self.game.player.unturn_a_card(self)
             if self.is_in_hand:
+                print(22222)
                 self.is_in_hand = 0
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
-                # self.rect.topleft = PLAYER['in_play']['pos']
-                print(555)
                 self.move_to_pos(PLAYER['in_play']['pos'])
 
     def update(self):
         if self.is_moving:
             self.move_to_pos()
+        if self.is_rotating:
+            self.rotate_to_angle()
 
         self.events()
 
@@ -184,6 +190,22 @@ class Card(pg.sprite.Sprite):
         self.rect.y += (self.rect.height - self.rect.width) * self.is_up
         self.is_up *= -1
 
+    def rotate_to_angle(self, target_angle=None):
+        print('rotate_to_angle()', self.rect, target_angle, self.target_angle, self.current_angle)
+        self.is_rotating = 1
+        if target_angle is not None:
+            self.target_angle = target_angle
+        self.dalpha = self.speed / 5.
+        self.current_angle += self.dalpha
+        self.current_angle %= 360
+        self.image = pg.transform.rotate(self.template.image, self.current_angle * self.is_up)
+        # self.rect.y += (self.rect.height - self.rect.width) * self.is_up
+        print(4444, self.target_angle, self.current_angle)
+        if abs(self.target_angle - self.current_angle) <= 0:
+            print('STOP')
+            self.is_up *= -1
+            self.is_rotating = 0
+
 
 class TemplateCard(object):
     def __init__(self, **kwargs):
@@ -196,11 +218,11 @@ class TemplateCard(object):
         self.load_a_card()
 
     def load_a_card(self):
-        self.image = pg.Surface(CARD['size'])
+        self.image = pg.Surface(CARD['size'], pg.SRCALPHA)
         self.image.fill(BLACK)
         self.image_dir = path.join(path.dirname(__file__), CARDS[self.id]['img_dir'])
         self.image_path = path.join(self.image_dir, CARDS[self.id]['img'])
-        self.draw = pg.image.load(self.image_path).convert()
+        self.draw = pg.image.load(self.image_path).convert_alpha()
 
     @classmethod
     def load_rect(cls, image, draw, pos):
@@ -406,7 +428,8 @@ class Player(pg.sprite.Sprite):
             card = card.id
         new_card = self.in_play.pop(card)
         self.turned[new_card.id] = new_card
-        new_card.rotate()
+        # new_card.rotate()
+        new_card.rotate_to_angle(90)
 
     def unturn_a_card(self, card):
         print('unturn_a_card()')
