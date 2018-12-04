@@ -254,6 +254,7 @@ class TemplateCards(object):
 
         cls.ze_manel = TemplateCard(**CARDS['ze_manel'])
         cls.fire_salamander = TemplateCard(**CARDS['fire_salamander'])
+        cls.bird = TemplateCard(**CARDS['bird'])
 
 
 class Mob(pg.sprite.Sprite):
@@ -414,7 +415,8 @@ class Player(pg.sprite.Sprite):
         self.game = game
         self.life = PLAYER['life']
 
-        self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander]
+        self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
+                     TemplateCards.bird]
         self.hand = {}
         self.in_play = {}
         self.turned = {}

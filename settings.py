@@ -12,7 +12,7 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 640,
+    'width': 760,
     'height': 760,
     'bgcolor': DARKBLUE,
     'fps': 30
@@ -40,7 +40,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': RED,
-        'pos': (520, 300),
+        'pos': (DISPLAY['width'] - 120, 300),
     },
     'block': {
         'id': 'block',
@@ -48,7 +48,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': LIGHTBLUE,
-        'pos': (520, 400),
+        'pos': (DISPLAY['width'] - 120, 400),
     },
     'pass': {
         'id': 'pass',
@@ -56,7 +56,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': WHITE,
-        'pos': (520, 500),
+        'pos': (DISPLAY['width'] - 120, 500),
     },
 }
 
@@ -123,11 +123,21 @@ CARDS = {
     'fire_salamander': {
         'id': 'fire_salamander',
         'name': 'Fire Salamander',
-        'type': 'human',
+        'type': 'fire',
         'img_dir': 'imgs',
         'img': 'fogo-05.2.jpg',
         'size': (127, 74),
         'atack': 2,
         'defense': 1
+    },
+    'bird': {
+        'id': 'bird',
+        'name': 'Bird',
+        'type': 'normal',
+        'img_dir': 'imgs',
+        'img': 'vento-08.5.png',
+        'size': (102, 100),
+        'atack': 1,
+        'defense': 2
     }
 }
