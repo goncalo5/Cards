@@ -347,6 +347,16 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.turned[card_to_turn.id] = card_to_turn
         card_to_turn.rotate_to_angle(self.init_rotate_angle + 90)
 
+    def unturn_a_card(self, card):
+        print(self.name, 'unturn_a_card()', self.turned, card)
+        if type(card) not in [str, int]:
+            card = card.id
+        if not self.is_your_turn:
+            return
+        new_card = self.turned.pop(card)
+        self.in_play[new_card.id] = new_card
+        new_card.rotate_to_angle(self.init_rotate_angle)
+
 
 class Mob(PlayerTemplate):
     def __init__(self, game):
@@ -359,12 +369,6 @@ class Mob(PlayerTemplate):
         self.init_rotate_angle = 180
 
         self.new_turn()
-
-    def unturn_a_card(self, card):
-        if type(card) not in [str, int]:
-            card = card.id
-        new_card = self.turned.pop(card)
-        self.in_play[new_card.id] = new_card
 
     def atack_the_player(self):
         print('mob atack_the_player()')
@@ -461,16 +465,6 @@ class Player(PlayerTemplate):
         if self.life <= 0:
             print('Game Over')
             Menu(self.game)
-
-    def unturn_a_card(self, card):
-        print('unturn_a_card()', self.turned, card)
-        if type(card) not in [str, int]:
-            card = card.id
-        if self.is_your_turn:
-            new_card = self.turned.pop(card)
-            self.in_play[new_card.id] = new_card
-            # new_card.rotate()
-            new_card.rotate_to_angle(0)
 
     def atack_the_player(self):
         pass
