@@ -118,8 +118,10 @@ class Card(pg.sprite.Sprite):
         self.image = template.image
         self.speed = CARD['speed']
         self.rotate_speed = CARD['rotate_speed']
-        if pos is None:
+        if isinstance(self.owner, Mob):
             pos = (0, -300)
+        else:
+            pos = BUTTON['deck']['pos']
         self.rect = template.load_rect(self.image, template.draw, pos)
 
         for label in ['name', 'type', 'atack', 'defense']:
@@ -254,30 +256,68 @@ class TemplateCards(object):
 
         cls.ze_manel = TemplateCard(**CARDS['ze_manel'])
         cls.fire_salamander = TemplateCard(**CARDS['fire_salamander'])
-        cls.bird = TemplateCard(**CARDS['bird'])
-        cls.bird_of_prey = TemplateCard(**CARDS['bird_of_prey'])
-        cls.war_horse = TemplateCard(**CARDS['war_horse'])
-        cls.snake_constrictor = TemplateCard(**CARDS['snake_constrictor'])
-        cls.socket_man = TemplateCard(**CARDS['socket_man'])
-        cls.electric_bird = TemplateCard(**CARDS['electric_bird'])
-        cls.electric_up_dog = TemplateCard(**CARDS['electric_up_dog'])
-        cls.electric_dog = TemplateCard(**CARDS['electric_dog'])
-        cls.electric_rat = TemplateCard(**CARDS['electric_rat'])
+        # cls.bird = TemplateCard(**CARDS['bird'])
+        # cls.bird_of_prey = TemplateCard(**CARDS['bird_of_prey'])
+        # cls.war_horse = TemplateCard(**CARDS['war_horse'])
+        # cls.snake_constrictor = TemplateCard(**CARDS['snake_constrictor'])
+        # cls.socket_man = TemplateCard(**CARDS['socket_man'])
+        # cls.electric_bird = TemplateCard(**CARDS['electric_bird'])
+        # cls.electric_up_dog = TemplateCard(**CARDS['electric_up_dog'])
+        # cls.electric_dog = TemplateCard(**CARDS['electric_dog'])
+        # cls.electric_rat = TemplateCard(**CARDS['electric_rat'])
 
 
-class Mob(pg.sprite.Sprite):
+class PlayerTemplate(pg.sprite.Sprite):
     def __init__(self, game):
+        self._layer = CARD['layer']
         self.groups = game.all_sprites
-        super(Mob, self).__init__(self.groups)
+        super(PlayerTemplate, self).__init__(self.groups)
         self.game = game
-        self.life = MOB['life']
+        self.name = self.__class__.__name__
 
-        self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
         self.hand = {}
         self.in_play = {}
         self.turned = {}
         self.atacking = {}
         self.card_id = 0
+
+        self.time_to_unpress = pg.time.get_ticks()
+
+    def new_turn(self):
+        print(self.name, 'new_turn()')
+        self.can_draw = 1
+        self.is_blocking = 0
+        self.is_your_turn = 1
+        self.step = 0
+        self.wait = 1
+        self.card_to_play = None
+        cards_to_unturn = []
+        for turned_card in self.turned:
+            cards_to_unturn.append(turned_card)
+        [self.unturn_a_card(card) for card in cards_to_unturn]
+
+    def draw_a_card(self):
+        print(self.name, 'draw_a_card()')
+        try:
+            new_card_template = self.deck.pop()
+        except IndexError:
+            return
+        new_card = Card(self.game, self, new_card_template, self.card_id)
+        target_pos = list(PLAYER['hand']['pos'])
+        target_pos[0] += CARD['size'][1] * new_card.id
+        new_card.move_to_pos(target_pos)
+        self.hand[new_card.id] = new_card
+        self.card_to_play = self.hand[new_card.id]
+        self.card_id += 1
+
+
+class Mob(PlayerTemplate):
+    def __init__(self, game):
+        # self.groups = game.all_sprites
+        super(Mob, self).__init__(game)
+        self.life = MOB['life']
+
+        self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
 
         self.image = pg.Surface(MOB['size'])
         self.rect = self.image.get_rect()
@@ -285,31 +325,16 @@ class Mob(pg.sprite.Sprite):
 
         self.new_turn()
 
-    def new_turn(self):
-        print('mob new_turn()', self.turned)
-        self.step = 0
-        self.wait = 1
-        # self.game.player.is_your_turn = 0
-        self.is_your_turn = 1
-        self.card_to_play = None
-        # for turned_card in self.turned:
-        #     self.unturn_a_card(turned_card)
-
-        cards_to_unturn = []
-        for turned_card in self.turned:
-            cards_to_unturn.append(turned_card)
-        [self.unturn_a_card(card) for card in cards_to_unturn]
-
-    def draw_a_card(self):
-        print('mob draw_a_card()')
-        try:
-            new_card_template = self.deck.pop()
-        except IndexError:
-            return
-        new_card = Card(self.game, self, new_card_template, self.card_id)
-        self.hand[self.card_id] = new_card
-        self.card_to_play = self.hand[new_card.id]
-        self.card_id += 1
+    # def draw_a_card(self):
+        # print('mob draw_a_card()')
+        # try:
+        #     new_card_template = self.deck.pop()
+        # except IndexError:
+        #     return
+        # new_card = Card(self.game, self, new_card_template, self.card_id)
+        # self.hand[self.card_id] = new_card
+        # self.card_to_play = self.hand[new_card.id]
+        # self.card_id += 1
 
     def play_a_card(self, card):
         print('mob play_a_card()')
@@ -415,32 +440,32 @@ class Mob(pg.sprite.Sprite):
             self.game.player.new_turn()
 
 
-class Player(pg.sprite.Sprite):
+class Player(PlayerTemplate):
     def __init__(self, game):
-        self._layer = CARD['layer']
-        self.groups = game.all_sprites
-        super(Player, self).__init__(self.groups)
-        self.game = game
+        # self._layer = CARD['layer']
+        # self.groups = game.all_sprites
+        super(Player, self).__init__(game)
+        # self.game = game
         self.life = PLAYER['life']
 
         self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
-                     TemplateCards.bird, TemplateCards.bird_of_prey,
-                     TemplateCards.war_horse, TemplateCards.snake_constrictor,
-                     TemplateCards.socket_man, TemplateCards.electric_bird,
-                     TemplateCards.electric_up_dog, TemplateCards.electric_dog,
-                     TemplateCards.electric_rat
+                     # TemplateCards.bird, TemplateCards.bird_of_prey,
+                     # TemplateCards.war_horse, TemplateCards.snake_constrictor,
+                     # TemplateCards.socket_man, TemplateCards.electric_bird,
+                     # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
+                     # TemplateCards.electric_rat
                      ]
-        self.hand = {}
-        self.in_play = {}
-        self.turned = {}
-        self.atacking = {}
-        self.card_id = 0
+        # self.hand = {}
+        # self.in_play = {}
+        # self.turned = {}
+        # self.atacking = {}
+        # self.card_id = 0
 
         self.image = pg.Surface(PLAYER['size'])
         self.rect = self.image.get_rect()
         self.rect.topleft = PLAYER['pos']
 
-        self.time_to_unpress = pg.time.get_ticks()
+        # self.time_to_unpress = pg.time.get_ticks()
 
         self.new_turn()
 
@@ -451,28 +476,17 @@ class Player(pg.sprite.Sprite):
             print('Game Over')
             Menu(self.game)
 
-    def new_turn(self):
-        print('player new_turn()')
-        self.can_draw = 1
-        self.is_blocking = 0
-        self.game.mob.is_your_turn = 0
-        self.is_your_turn = 1
-        cards_to_unturn = []
-        for turned_card in self.turned:
-            cards_to_unturn.append(turned_card)
-        [self.unturn_a_card(card) for card in cards_to_unturn]
-
-    def draw_a_card(self):
-        print('player draw_a_card()')
-        new_card_template = self.deck.pop()
-        deck_pos = BUTTON['deck']['pos']
-        new_card =\
-            Card(self.game, self, new_card_template, self.card_id, deck_pos)
-        target_pos = list(PLAYER['hand']['pos'])
-        target_pos[0] += CARD['size'][1] * new_card.id
-        new_card.move_to_pos(target_pos)
-        self.hand[new_card.id] = new_card
-        self.card_id += 1
+    # def draw_a_card(self):
+        # print('player draw_a_card()')
+        # new_card_template = self.deck.pop()
+        # deck_pos = BUTTON['deck']['pos']
+        # new_card =\
+        #     Card(self.game, self, new_card_template, self.card_id, deck_pos)
+        # target_pos = list(PLAYER['hand']['pos'])
+        # target_pos[0] += CARD['size'][1] * new_card.id
+        # new_card.move_to_pos(target_pos)
+        # self.hand[new_card.id] = new_card
+        # self.card_id += 1
 
     def play_a_card(self, card):
         print('player play_a_card()', self.hand)
