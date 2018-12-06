@@ -69,7 +69,7 @@ class Button(pg.sprite.Sprite):
                     print(creature1, creature2)
                     if creature1 and not creature2:
                         self.game.mob.life -= creature1.atack
-                        self.game.mob.step = 1
+                        # self.game.mob.step = 1
                     if creature1 and creature2:
                         res = combat(creature1, creature2)
                         print(res)
@@ -77,6 +77,7 @@ class Button(pg.sprite.Sprite):
                             creature1.kill()
                         if res[1]:
                             creature2.kill()
+                self.game.mob.new_turn()
             if self.id == 'block':
                 self.game.player.is_blocking = 1
                 print('button block')
@@ -99,7 +100,8 @@ class Button(pg.sprite.Sprite):
                 if self.game.mob.step == 0:
                     self.game.player.end_turn()
                     self.game.mob.new_turn()
-                self.game.mob.step += 1
+                else:
+                    self.game.mob.step += 1
 
     def update(self):
         self.events()
@@ -285,6 +287,8 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.turned = {}
         self.atacking = {}
         self.card_id = 0
+        self.wait = 1
+        self.step = 0
 
         self.time_to_unpress = pg.time.get_ticks()
 
@@ -293,7 +297,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.can_draw = 1
         self.is_blocking = 0
         self.is_your_turn = 1
-        self.step = 0
+        self.step = 1
         self.wait = 1
         self.card_to_play = None
         cards_to_unturn = []
@@ -373,10 +377,8 @@ class Mob(PlayerTemplate):
 
         self.init_rotate_angle = 180
 
-        self.new_turn()
-
     def atack_the_player(self):
-        print('mob atack_the_player()')
+        print('mob atack_the_player()', self.turned)
         for atacking_creature in self.turned.values():
             creature1 = atacking_creature
             if not self.game.player.is_blocking:
@@ -417,7 +419,10 @@ class Mob(PlayerTemplate):
             print('step', self.step)
 
             self.draw_a_card()
-            self.card_to_play.is_moving = True
+            try:
+                self.card_to_play.is_moving = True
+            except AttributeError:
+                print('cant buy, deck is empty')
             self.wait = 0
         if self.step == 2:
             print('step', self.step)
@@ -429,7 +434,11 @@ class Mob(PlayerTemplate):
         if self.step == 3:
             print('step', self.step)
             if not self.wait:
-                self.turn_a_card(self.card_to_play.id)
+                to_turn = self.in_play.copy()
+                print(to_turn)
+                for card_to_turn in to_turn:
+                    self.turn_a_card(card_to_turn)
+                # self.turn_a_card(self.card_to_play.id)
                 self.wait = 1
             if not self.game.player.in_play:
                 self.wait = 0
