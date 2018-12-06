@@ -274,6 +274,11 @@ class PlayerTemplate(pg.sprite.Sprite):
         super(PlayerTemplate, self).__init__(self.groups)
         self.game = game
         self.name = self.__class__.__name__
+        self.life = self.settings.get('life')
+
+        self.image = pg.Surface(self.settings['size'])
+        self.rect = self.image.get_rect()
+        self.rect.topleft = self.settings['pos']
 
         self.hand = {}
         self.in_play = {}
@@ -310,59 +315,50 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.card_to_play = self.hand[new_card.id]
         self.card_id += 1
 
-
-class Mob(PlayerTemplate):
-    def __init__(self, game):
-        # self.groups = game.all_sprites
-        super(Mob, self).__init__(game)
-        self.life = MOB['life']
-
-        self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
-
-        self.image = pg.Surface(MOB['size'])
-        self.rect = self.image.get_rect()
-        self.rect.topleft = MOB['pos']
-
-        self.new_turn()
-
-    # def draw_a_card(self):
-        # print('mob draw_a_card()')
-        # try:
-        #     new_card_template = self.deck.pop()
-        # except IndexError:
-        #     return
-        # new_card = Card(self.game, self, new_card_template, self.card_id)
-        # self.hand[self.card_id] = new_card
-        # self.card_to_play = self.hand[new_card.id]
-        # self.card_id += 1
-
     def play_a_card(self, card):
-        print('mob play_a_card()')
+        print(self.name, 'play_a_card()')
+        if type(card) not in [str, int]:
+            card = card.id
         try:
             card_to_play = self.hand.pop(card)
         except KeyError:
             return
         card_to_play.is_moving = True
-        if card_to_play is not None:
-            self.in_play[card_to_play.id] = card_to_play
-            card_to_play.image = pg.transform.rotate(card_to_play.image, 180)
-            card_to_play.current_angle = 180
-            # card_to_play.target_pos = MOB['in_play']['pos']
+        if card_to_play is None:
+            return
+        self.in_play[card_to_play.id] = card_to_play
+        card_to_play.image = pg.transform.rotate(card_to_play.image, self.init_rotate_angle)
+        card_to_play.current_angle = self.init_rotate_angle
 
-            target_pos = list(MOB['in_play']['pos'])
-            target_pos[0] += CARD['size'][1] * card_to_play.id
-            card_to_play.target_pos = target_pos
+        target_pos = list(self.settings['in_play']['pos'])
+        target_pos[0] += CARD['size'][1] * card_to_play.id
+        card_to_play.target_pos = target_pos
 
     def turn_a_card(self, card):
-        print('mob turn_a_card()')
+        print(self.name, 'turn_a_card()')
+        if type(card) not in [str, int]:
+            card = card.id
         try:
             card_to_turn = self.in_play.pop(card)
         except KeyError:
             return
-        if card_to_turn is not None:
-            self.turned[card_to_turn.id] = card_to_turn
-            card_to_turn.rotate_to_angle(270)
-            # card_to_turn.rotate()
+        if card_to_turn is None:
+            return
+        self.turned[card_to_turn.id] = card_to_turn
+        card_to_turn.rotate_to_angle(self.init_rotate_angle + 90)
+
+
+class Mob(PlayerTemplate):
+    def __init__(self, game):
+        # self.groups = game.all_sprites
+        self.settings = MOB
+        super(Mob, self).__init__(game)
+
+        self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
+
+        self.init_rotate_angle = 180
+
+        self.new_turn()
 
     def unturn_a_card(self, card):
         if type(card) not in [str, int]:
@@ -444,9 +440,8 @@ class Player(PlayerTemplate):
     def __init__(self, game):
         # self._layer = CARD['layer']
         # self.groups = game.all_sprites
+        self.settings = PLAYER
         super(Player, self).__init__(game)
-        # self.game = game
-        self.life = PLAYER['life']
 
         self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
                      # TemplateCards.bird, TemplateCards.bird_of_prey,
@@ -455,17 +450,8 @@ class Player(PlayerTemplate):
                      # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
                      # TemplateCards.electric_rat
                      ]
-        # self.hand = {}
-        # self.in_play = {}
-        # self.turned = {}
-        # self.atacking = {}
-        # self.card_id = 0
 
-        self.image = pg.Surface(PLAYER['size'])
-        self.rect = self.image.get_rect()
-        self.rect.topleft = PLAYER['pos']
-
-        # self.time_to_unpress = pg.time.get_ticks()
+        self.init_rotate_angle = 0
 
         self.new_turn()
 
@@ -475,37 +461,6 @@ class Player(PlayerTemplate):
         if self.life <= 0:
             print('Game Over')
             Menu(self.game)
-
-    # def draw_a_card(self):
-        # print('player draw_a_card()')
-        # new_card_template = self.deck.pop()
-        # deck_pos = BUTTON['deck']['pos']
-        # new_card =\
-        #     Card(self.game, self, new_card_template, self.card_id, deck_pos)
-        # target_pos = list(PLAYER['hand']['pos'])
-        # target_pos[0] += CARD['size'][1] * new_card.id
-        # new_card.move_to_pos(target_pos)
-        # self.hand[new_card.id] = new_card
-        # self.card_id += 1
-
-    def play_a_card(self, card):
-        print('player play_a_card()', self.hand)
-        if type(card) not in [str, int]:
-            card = card.id
-        new_card = self.hand.pop(card)
-        self.in_play[new_card.id] = new_card
-        target_pos = list(PLAYER['in_play']['pos'])
-        target_pos[0] += CARD['size'][1] * new_card.id
-        new_card.move_to_pos(target_pos)
-
-    def turn_a_card(self, card):
-        print('player turn_a_card()')
-        if type(card) not in [str, int]:
-            card = card.id
-        new_card = self.in_play.pop(card)
-        self.turned[new_card.id] = new_card
-        # new_card.rotate()
-        new_card.rotate_to_angle(90)
 
     def unturn_a_card(self, card):
         print('unturn_a_card()', self.turned, card)
