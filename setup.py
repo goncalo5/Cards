@@ -357,6 +357,11 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.in_play[new_card.id] = new_card
         new_card.rotate_to_angle(self.init_rotate_angle)
 
+    def end_turn(self):
+        print(self.name, 'end_turn()')
+        self.is_your_turn = 0
+        self.step = 0
+
 
 class Mob(PlayerTemplate):
     def __init__(self, game):
@@ -389,11 +394,6 @@ class Mob(PlayerTemplate):
                     creature1.kill()
                 continue
             self.game.player.life -= creature1.atack
-
-    def end_turn(self):
-        print('mob end_turn()')
-        self.is_your_turn = 0
-        self.step = 0
 
     def calc_blockers(self):
         self.blockers = {}
@@ -468,10 +468,6 @@ class Player(PlayerTemplate):
 
     def atack_the_player(self):
         pass
-
-    def end_turn(self):
-        print('player end_turn()')
-        self.is_your_turn = 0
 
 
 class Menu(object):
