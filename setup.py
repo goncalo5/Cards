@@ -7,6 +7,7 @@ from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RE
 
 
 def combat(atacking_creature, blockers):
+    # combat(c1, [c2, c3]) -> (1, [1, 0])
     total_atacking_damage = atacking_creature.atack
     total_blocking_damage = 0
     atacking_creature_died = 0
@@ -390,6 +391,8 @@ class Mob(PlayerTemplate):
 
     def atack_the_player(self):
         print('mob atack_the_player()', self.turned)
+        atacking_cards_to_pop = []
+        blocking_cards_to_pop = []
         for atacking_creature in self.game.mob.turned.values():
             print('atacking_creature', atacking_creature, atacking_creature.blockers)
             if len(atacking_creature.blockers) == 0:
@@ -399,10 +402,18 @@ class Mob(PlayerTemplate):
             print(res)
             if res[0] == 1:
                 atacking_creature.kill()
-            for blocker_i, blocker_died in enumerate(res[1]):
-                print(blocker_i, blocker_died)
-                if blocker_died == 1:
-                    atacking_creature.blockers[blocker_i].kill()
+                atacking_cards_to_pop.append(atacking_creature)
+            for blocker_i, blocker_is_dead in enumerate(res[1]):
+                print(blocker_i, blocker_is_dead)
+                if blocker_is_dead == 1:
+                    blocker = atacking_creature.blockers[blocker_i]
+                    blocker.kill()
+                    blocking_cards_to_pop.append(blocker)
+        for atacking in atacking_cards_to_pop:
+            print(atacking, atacking.id)
+            self.game.mob.turned.pop(atacking.id)
+        for blocking in blocking_cards_to_pop:
+            self.game.player.in_play.pop(blocking.id)
 
     def calc_blockers(self):
         self.blockers = {}
