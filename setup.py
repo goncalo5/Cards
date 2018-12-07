@@ -6,13 +6,7 @@ import pygame as pg
 from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
-def combat(creature1, creature2):
-    first_die = creature2.atack >= creature1.defense
-    second_die = creature1.atack >= creature2.defense
-    return (first_die, second_die)
-
-
-def combat2(atacking_creature, blockers):
+def combat(atacking_creature, blockers):
     total_atacking_damage = atacking_creature.atack
     total_blocking_damage = 0
     atacking_creature_died = 0
@@ -89,7 +83,7 @@ class Button(pg.sprite.Sprite):
                         self.game.mob.life -= creature1.atack
                         # self.game.mob.step = 1
                     if creature1 and creature2:
-                        res = combat(creature1, creature2)
+                        res = combat(creature1, [creature2])
                         print(res)
                         if res[0]:
                             creature1.kill()
@@ -97,36 +91,8 @@ class Button(pg.sprite.Sprite):
                             creature2.kill()
                 self.game.mob.new_turn()
             if self.id == 'block':
-                self.game.player.is_blocking = 1
                 print('button block')
-                # if self.game.player.in_play:
-                # for blocking_creature in self.game.player.in_play.values():
-                #     for atacking_creature in self.game.mob.turned.values():
-                #         creature1 = atacking_creature
-                #         creature2 = blocking_creature
-                #         print(creature1, creature2)
-                #         res = combat(creature1, creature2)
-                #         print (res)
-                #         if res[0]:
-                #             creature1.kill()
-                #         if res[1]:
-                #             creature2.kill()
-                for atacking_creature in self.game.mob.turned.values():
-                    print('atacking_creature', atacking_creature, atacking_creature.blockers)
-                    if len(atacking_creature.blockers) == 0:
-                        self.game.player.life -= atacking_creature.atack
-                        continue
-                    res = combat2(atacking_creature, atacking_creature.blockers)
-                    print(res)
-                    if res[0] == 1:
-                        atacking_creature.kill()
-                    for blocker_i, blocker_died in enumerate(res[1]):
-                        print(blocker_i, blocker_died)
-                        if blocker_died == 1:
-                            atacking_creature.blockers[blocker_i].kill()
-
-                self.game.mob.end_turn()
-                self.game.player.new_turn()
+                self.game.mob.step += 1
             if self.id == 'pass':
                 print('button pass')
                 if self.game.mob.step == 0:
@@ -409,6 +375,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         print(self.name, 'end_turn()')
         self.is_your_turn = 0
         self.step = 0
+        self.wait = 1
 
 
 class Mob(PlayerTemplate):
@@ -423,24 +390,19 @@ class Mob(PlayerTemplate):
 
     def atack_the_player(self):
         print('mob atack_the_player()', self.turned)
-        for atacking_creature in self.turned.values():
-            creature1 = atacking_creature
-            creature1.is_atacking = 1
-            if not self.game.player.is_blocking:
-                self.game.player.life -= creature1.atack
-                self.step = 0
-                self.wait = 1
+        for atacking_creature in self.game.mob.turned.values():
+            print('atacking_creature', atacking_creature, atacking_creature.blockers)
+            if len(atacking_creature.blockers) == 0:
+                self.game.player.life -= atacking_creature.atack
                 continue
-            for blocking_creature in self.game.player.in_play.values():
-                creature2 = blocking_creature
-                res = combat(creature1, creature2)
-                print(res)
-                if res[1]:
-                    creature2.kill()
-                if res[0]:
-                    creature1.kill()
-                continue
-            self.game.player.life -= creature1.atack
+            res = combat(atacking_creature, atacking_creature.blockers)
+            print(res)
+            if res[0] == 1:
+                atacking_creature.kill()
+            for blocker_i, blocker_died in enumerate(res[1]):
+                print(blocker_i, blocker_died)
+                if blocker_died == 1:
+                    atacking_creature.blockers[blocker_i].kill()
 
     def calc_blockers(self):
         self.blockers = {}
