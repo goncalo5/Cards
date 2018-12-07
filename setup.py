@@ -218,6 +218,7 @@ class Card(pg.sprite.Sprite):
     def rotate_to_angle(self, target_angle=None):
         # print('rotate_to_angle()', self.rect, target_angle, self.target_angle, self.current_angle)
         self.is_rotating = 1
+        self.is_moving = 1
         if target_angle is not None:
             self.target_angle = target_angle
 
@@ -230,6 +231,7 @@ class Card(pg.sprite.Sprite):
             # print('STOP')
             self.is_up *= -1
             self.is_rotating = 0
+            self.is_moving = 0
 
 
 class TemplateCard(object):
@@ -378,6 +380,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.is_your_turn = 0
         self.step = 0
         self.wait = 1
+        print()
 
 
 class Mob(PlayerTemplate):
@@ -450,9 +453,20 @@ class Mob(PlayerTemplate):
             print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 self.wait = 1
-                self.play_a_card(self.card_to_play.id)
-            if not self.card_to_play.is_moving:
-                self.wait = 0
+                try:
+                    self.play_a_card(self.card_to_play.id)
+                except AttributeError:
+                    print(self.name, 'cant buy more cards, deck is empty')
+            if self.card_to_play is None or not self.card_to_play.is_moving:
+                for turned_card in self.in_play.values():
+                    print('turned_card.is_moving', turned_card.is_moving)
+                    if turned_card.is_moving:
+                        print(8888888)
+                        print(turned_card, 'is_moving')
+                        break
+                else:  # if no break
+                    print(777777)
+                    self.wait = 0
         if self.step == 3:
             print('step', self.step, self.game.player.in_play)
             if not self.wait:
