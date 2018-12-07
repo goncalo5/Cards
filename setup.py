@@ -12,6 +12,24 @@ def combat(creature1, creature2):
     return (first_die, second_die)
 
 
+def combat2(atacking_creature, blockers):
+    total_atacking_damage = atacking_creature.atack
+    total_blocking_damage = 0
+    atacking_creature_died = 0
+    blocker_deads = []
+    for blocker in blockers:
+        total_blocking_damage += blocker.atack
+        if total_blocking_damage >= atacking_creature.defense:
+            atacking_creature_died = 1
+        if total_atacking_damage >= blocker.defense:
+            blocker_deads.append(1)
+        else:
+            blocker_deads.append(0)
+        total_atacking_damage -= blocker.defense
+
+    return (atacking_creature_died, blocker_deads)
+
+
 def draw_text(screen, text, size, color, pos, font='arial'):
     try:
         font = pg.font.Font(font, size)
@@ -82,17 +100,31 @@ class Button(pg.sprite.Sprite):
                 self.game.player.is_blocking = 1
                 print('button block')
                 # if self.game.player.in_play:
-                for blocking_creature in self.game.player.in_play.values():
-                    for atacking_creature in self.game.mob.turned.values():
-                        creature1 = atacking_creature
-                        creature2 = blocking_creature
-                        print(creature1, creature2)
-                        res = combat(creature1, creature2)
-                        print (res)
-                        if res[0]:
-                            creature1.kill()
-                        if res[1]:
-                            creature2.kill()
+                # for blocking_creature in self.game.player.in_play.values():
+                #     for atacking_creature in self.game.mob.turned.values():
+                #         creature1 = atacking_creature
+                #         creature2 = blocking_creature
+                #         print(creature1, creature2)
+                #         res = combat(creature1, creature2)
+                #         print (res)
+                #         if res[0]:
+                #             creature1.kill()
+                #         if res[1]:
+                #             creature2.kill()
+                for atacking_creature in self.game.mob.turned.values():
+                    print('atacking_creature', atacking_creature, atacking_creature.blockers)
+                    if len(atacking_creature.blockers) == 0:
+                        self.game.player.life -= atacking_creature.atack
+                        continue
+                    res = combat2(atacking_creature, atacking_creature.blockers)
+                    print(res)
+                    if res[0] == 1:
+                        atacking_creature.kill()
+                    for blocker_i, blocker_died in enumerate(res[1]):
+                        print(blocker_i, blocker_died)
+                        if blocker_died == 1:
+                            atacking_creature.blockers[blocker_i].kill()
+
                 self.game.mob.end_turn()
                 self.game.player.new_turn()
             if self.id == 'pass':
@@ -135,6 +167,7 @@ class Card(pg.sprite.Sprite):
         self.is_in_play = 0
         self.is_up = 1
         self.is_atacking = 0
+        self.blockers = []
         self.is_moving = 0
         self.target_pos = pos
         self.target_angle = 0
@@ -151,21 +184,30 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
-            print('press card', self.time_to_unpress)
+            print('press card', self.is_atacking, self.owner.is_your_turn)
 
             if self.is_in_play:
-                # print(11111)
-                # self.rotate()
-                if self.is_up == 1 and not self.is_rotating and self.owner.is_your_turn:
-                    self.game.player.turn_a_card(self)
-                elif self.is_up == -1 and not self.is_rotating and self.owner.is_your_turn:
-                    self.game.player.unturn_a_card(self)
+                print(self.id, 'is_in_play', self.is_up, self.owner.name)
+                if self.owner.name == 'Player':
+                    print('player')
+                    if self.is_up == 1 and not self.is_rotating and self.owner.is_your_turn:
+                        self.game.player.turn_a_card(self)
+                    elif self.is_up == -1 and not self.is_rotating and self.owner.is_your_turn:
+                        self.game.player.unturn_a_card(self)
+                # select atackers to block
+                if self.is_up == -1 and self.owner.name == 'Mob':
+                    print(self.id, 'is_atacking')
+                    self.game.selected_card = self
+                    print(self.game.selected_card.blockers)
+                # select blockers
+                if self.is_up == 1 and not self.owner.is_your_turn:
+                    print(self.id, 'block')
+                    self.game.selected_card.blockers.append(self)
             if self.is_in_hand:
-                # print(22222)
+                print(self.id, 'is_in_hand')
                 self.is_in_hand = 0
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
-                # self.move_to_pos(PLAYER['in_play']['pos'])
 
     def update(self):
         if self.is_moving:
@@ -328,6 +370,8 @@ class PlayerTemplate(pg.sprite.Sprite):
         except KeyError:
             return
         card_to_play.is_moving = True
+        card_to_play.is_in_hand = 0
+        card_to_play.is_in_play = 1
         if card_to_play is None:
             return
         self.in_play[card_to_play.id] = card_to_play
@@ -381,6 +425,7 @@ class Mob(PlayerTemplate):
         print('mob atack_the_player()', self.turned)
         for atacking_creature in self.turned.values():
             creature1 = atacking_creature
+            creature1.is_atacking = 1
             if not self.game.player.is_blocking:
                 self.game.player.life -= creature1.atack
                 self.step = 0
@@ -505,6 +550,7 @@ class Game(object):
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.buttons = pg.sprite.Group()
         self.cards = pg.sprite.Group()
+        self.selected_card = None
         Menu(self)
         # self.new()
         self.run()
