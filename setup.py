@@ -90,6 +90,7 @@ class Button(pg.sprite.Sprite):
                             creature1.kill()
                         if res[1]:
                             creature2.kill()
+                self.game.player.end_turn()
                 self.game.mob.new_turn()
             if self.id == 'block':
                 print('button block')
@@ -167,9 +168,12 @@ class Card(pg.sprite.Sprite):
                     self.game.selected_card = self
                     print(self.game.selected_card.blockers)
                 # select blockers
-                if self.is_up == 1 and not self.owner.is_your_turn:
+                if self.is_up == 1 and self.owner.name == 'Player':
                     print(self.id, 'block')
-                    self.game.selected_card.blockers.append(self)
+                    try:
+                        self.game.selected_card.blockers.append(self)
+                    except AttributeError:
+                        print('please insert the atacking to block first')
             if self.is_in_hand:
                 print(self.id, 'is_in_hand')
                 self.is_in_hand = 0
@@ -219,12 +223,9 @@ class Card(pg.sprite.Sprite):
 
         self.dalpha = self.rotate_speed if self.target_angle >= self.current_angle else -self.rotate_speed
         self.current_angle += self.dalpha
-        # print(333, self.current_angle)
         self.current_angle %= 360
-        # print(666, self.current_angle)
         self.image = pg.transform.rotate(self.template.image, self.current_angle)
         # self.rect.y += (self.rect.height - self.rect.width) * self.is_up
-        # print(4444, self.target_angle, self.current_angle)
         if abs(self.target_angle - self.current_angle) <= 2:
             # print('STOP')
             self.is_up *= -1
@@ -409,10 +410,13 @@ class Mob(PlayerTemplate):
                     blocker = atacking_creature.blockers[blocker_i]
                     blocker.kill()
                     blocking_cards_to_pop.append(blocker)
+        print('atacking_cards_to_pop', atacking_cards_to_pop)
         for atacking in atacking_cards_to_pop:
             print(atacking, atacking.id)
             self.game.mob.turned.pop(atacking.id)
+        print('blocking_cards_to_pop', blocking_cards_to_pop)
         for blocking in blocking_cards_to_pop:
+            print(blocking, blocking.id, self.game.player.in_play)
             self.game.player.in_play.pop(blocking.id)
 
     def calc_blockers(self):
@@ -434,7 +438,7 @@ class Mob(PlayerTemplate):
             self.step += 1
 
         if self.step == 1:
-            print('step', self.step)
+            print('step', self.step, self.game.player.in_play)
 
             self.draw_a_card()
             try:
@@ -443,14 +447,14 @@ class Mob(PlayerTemplate):
                 print('cant buy, deck is empty')
             self.wait = 0
         if self.step == 2:
-            print('step', self.step)
+            print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 self.wait = 1
                 self.play_a_card(self.card_to_play.id)
             if not self.card_to_play.is_moving:
                 self.wait = 0
         if self.step == 3:
-            print('step', self.step)
+            print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 to_turn = self.in_play.copy()
                 print(to_turn)
@@ -461,7 +465,7 @@ class Mob(PlayerTemplate):
             if not self.game.player.in_play:
                 self.wait = 0
         if self.step == 4:
-            print('step', self.step)
+            print('step', self.step, self.game.player.in_play)
             self.atack_the_player()
             self.end_turn()
             self.game.player.new_turn()
