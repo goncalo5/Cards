@@ -34,9 +34,9 @@ BUTTON = {
         'color': YELLOW,
         'pos': (20, 200)
     },
-    'atack': {
-        'id': 'atack',
-        'name': 'Atack',
+    'attack': {
+        'id': 'attack',
+        'name': 'attack',
         'size': (100, 60),
         'font_size': 30,
         'color': RED,
@@ -99,7 +99,7 @@ CARD = {
         'color': WHITE,
         'pos': (30, 140)
     },
-    'atack': {
+    'attack': {
         'color': RED,
         'pos': (80, 140)
     },
@@ -117,7 +117,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'p1_front.png',
         'size': (66, 92),
-        'atack': 2,
+        'attack': 2,
         'defense': 2
     },
     'bird_of_prey': {
@@ -127,7 +127,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'ave-rapina.png',
         'size': (98, 96),
-        'atack': 0,
+        'attack': 0,
         'defense': 1
     },
     'war_horse': {
@@ -137,7 +137,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'cavalo.de.guerra.2.png',
         'size': (57, 100),
-        'atack': 2,
+        'attack': 2,
         'defense': 3
     },
     'snake_constrictor': {
@@ -147,7 +147,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'cobra-constritora.6.png',
         'size': (80, 100),
-        'atack': 2,
+        'attack': 2,
         'defense': 2
     },
     'bird': {
@@ -157,7 +157,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'vento-08.5.png',
         'size': (102, 100),
-        'atack': 1,
+        'attack': 1,
         'defense': 2
     },
     'fire_salamander': {
@@ -167,7 +167,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'fogo-05.2.jpg',
         'size': (127, 74),
-        'atack': 2,
+        'attack': 2,
         'defense': 1
     },
     'socket_man': {
@@ -177,7 +177,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-02.5.png',
         'size': (101, 106),
-        'atack': 5,
+        'attack': 5,
         'defense': 3
     },
     'electric_bird': {
@@ -187,7 +187,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-03.png',
         'size': (117, 79),
-        'atack': 3,
+        'attack': 3,
         'defense': 1
     },
     'electric_up_dog': {
@@ -197,7 +197,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-04.png',
         'size': (89, 99),
-        'atack': 3,
+        'attack': 3,
         'defense': 3
     },
     'electric_dog': {
@@ -207,7 +207,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-08.png',
         'size': (103, 87),
-        'atack': 3,
+        'attack': 3,
         'defense': 2
     },
     'electric_rat': {
@@ -217,7 +217,7 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-10.png',
         'size': (67, 100),
-        'atack': 2,
+        'attack': 2,
         'defense': 1
     },
 }

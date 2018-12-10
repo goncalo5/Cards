@@ -6,23 +6,23 @@ import pygame as pg
 from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
-def combat(atacking_creature, blockers):
+def combat(attacking_creature, blockers):
     # combat(c1, [c2, c3]) -> (1, [1, 0])
-    total_atacking_damage = atacking_creature.atack
+    total_attacking_damage = attacking_creature.attack
     total_blocking_damage = 0
-    atacking_creature_died = 0
+    attacking_creature_died = 0
     blocker_deads = []
     for blocker in blockers:
-        total_blocking_damage += blocker.atack
-        if total_blocking_damage >= atacking_creature.defense:
-            atacking_creature_died = 1
-        if total_atacking_damage >= blocker.defense:
+        total_blocking_damage += blocker.attack
+        if total_blocking_damage >= attacking_creature.defense:
+            attacking_creature_died = 1
+        if total_attacking_damage >= blocker.defense:
             blocker_deads.append(1)
         else:
             blocker_deads.append(0)
-        total_atacking_damage -= blocker.defense
+        total_attacking_damage -= blocker.defense
 
-    return (atacking_creature_died, blocker_deads)
+    return (attacking_creature_died, blocker_deads)
 
 
 def draw_text(screen, text, size, color, pos, font='arial'):
@@ -70,9 +70,9 @@ class Button(pg.sprite.Sprite):
                 self.game.player.draw_a_card()
                 if not self.game.player.deck:
                     self.kill()
-            if self.id == 'atack':
-                print('button atack')
-                self.game.player.atack(self.game.mob)
+            if self.id == 'attack':
+                print('button attack')
+                self.game.player.attack(self.game.mob)
             if self.id == 'block':
                 print('button block')
                 self.game.player.to_block(self.game.mob)
@@ -96,7 +96,7 @@ class Card(pg.sprite.Sprite):
         self.owner = owner
         self.template = template
         self.id = id
-        self.atack = template.atack
+        self.attack = template.attack
         self.defense = template.defense
         self.image = template.image
         self.speed = CARD['speed']
@@ -107,7 +107,7 @@ class Card(pg.sprite.Sprite):
             pos = BUTTON['deck']['pos']
         self.rect = template.load_rect(self.image, template.draw, pos)
 
-        for label in ['name', 'type', 'atack', 'defense']:
+        for label in ['name', 'type', 'attack', 'defense']:
             draw_text(self.image, CARDS[template.id][label], CARD['font_size'],
                       CARD[label]['color'], CARD[label]['pos'])
 
@@ -115,7 +115,7 @@ class Card(pg.sprite.Sprite):
         self.is_in_hand = 1
         self.is_in_play = 0
         self.is_up = 1
-        self.is_atacking = 0
+        self.is_attacking = 0
         self.blockers = []
         self.is_moving = 0
         self.target_pos = pos
@@ -133,7 +133,7 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
-            print('press card', self.is_atacking, self.owner.is_your_turn)
+            print('press card', self.is_attacking, self.owner.is_your_turn)
 
             if self.is_in_play:
                 print(self.id, 'is_in_play', self.is_up, self.owner.name)
@@ -143,9 +143,9 @@ class Card(pg.sprite.Sprite):
                         self.game.player.turn_a_card(self)
                     elif self.is_up == -1 and not self.is_rotating and self.owner.is_your_turn:
                         self.game.player.unturn_a_card(self)
-                # select atackers to block
+                # select attackers to block
                 if self.is_up == -1 and self.owner.name == 'Mob':
-                    print(self.id, 'is_atacking')
+                    print(self.id, 'is_attacking')
                     self.game.selected_card = self
                     print(self.game.selected_card.blockers)
                 # select blockers
@@ -154,7 +154,7 @@ class Card(pg.sprite.Sprite):
                     try:
                         self.game.selected_card.blockers.append(self)
                     except AttributeError:
-                        print('please insert the atacking to block first')
+                        print('please insert the attacking to block first')
             if self.is_in_hand:
                 print(self.id, 'is_in_hand')
                 self.is_in_hand = 0
@@ -220,7 +220,7 @@ class TemplateCard(object):
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
         self.type = kwargs.get('type')
-        self.atack = kwargs.get('atack')
+        self.attack = kwargs.get('attack')
         self.defense = kwargs.get('defense')
         self.size = kwargs.get('size')
 
@@ -278,7 +278,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.hand = {}
         self.in_play = {}
         self.turned = {}
-        self.atacking = {}
+        self.attacking = {}
         self.card_id = 0
         self.wait = 1
         self.step = 0
@@ -377,30 +377,30 @@ class Mob(PlayerTemplate):
 
         self.init_rotate_angle = 180
 
-    def atack_the_player(self):
-        print('mob atack_the_player()', self.turned)
-        atacking_cards_to_pop = []
+    def attack_the_player(self):
+        print('mob attack_the_player()', self.turned)
+        attacking_cards_to_pop = []
         blocking_cards_to_pop = []
-        for atacking_creature in self.game.mob.turned.values():
-            print('atacking_creature', atacking_creature, atacking_creature.blockers)
-            if len(atacking_creature.blockers) == 0:
-                self.game.player.life -= atacking_creature.atack
+        for attacking_creature in self.game.mob.turned.values():
+            print('attacking_creature', attacking_creature, attacking_creature.blockers)
+            if len(attacking_creature.blockers) == 0:
+                self.game.player.life -= attacking_creature.attack
                 continue
-            res = combat(atacking_creature, atacking_creature.blockers)
+            res = combat(attacking_creature, attacking_creature.blockers)
             print(res)
             if res[0] == 1:
-                atacking_creature.kill()
-                atacking_cards_to_pop.append(atacking_creature)
+                attacking_creature.kill()
+                attacking_cards_to_pop.append(attacking_creature)
             for blocker_i, blocker_is_dead in enumerate(res[1]):
                 print(blocker_i, blocker_is_dead)
                 if blocker_is_dead == 1:
-                    blocker = atacking_creature.blockers[blocker_i]
+                    blocker = attacking_creature.blockers[blocker_i]
                     blocker.kill()
                     blocking_cards_to_pop.append(blocker)
-        print('atacking_cards_to_pop', atacking_cards_to_pop)
-        for atacking in atacking_cards_to_pop:
-            print(atacking, atacking.id)
-            self.game.mob.turned.pop(atacking.id)
+        print('attacking_cards_to_pop', attacking_cards_to_pop)
+        for attacking in attacking_cards_to_pop:
+            print(attacking, attacking.id)
+            self.game.mob.turned.pop(attacking.id)
         print('blocking_cards_to_pop', blocking_cards_to_pop)
         for blocking in blocking_cards_to_pop:
             print(blocking, blocking.id, self.game.player.in_play)
@@ -408,11 +408,11 @@ class Mob(PlayerTemplate):
 
     def calc_blockers(self):
         self.blockers = {}
-        for atacker in self.game.player.turned:
+        for attacker in self.game.player.turned:
             try:
-                self.blockers[atacker] = self.in_play.pop()
+                self.blockers[attacker] = self.in_play.pop()
             except TypeError:
-                self.blockers[atacker] = None
+                self.blockers[attacker] = None
 
     def update(self):
         self.image.fill(BLACK)
@@ -464,7 +464,7 @@ class Mob(PlayerTemplate):
                 self.wait = 0
         if self.step == 4:
             print('step', self.step, self.game.player.in_play)
-            self.atack_the_player()
+            self.attack_the_player()
             self.end_turn()
             self.game.player.new_turn()
 
@@ -495,14 +495,14 @@ class Player(PlayerTemplate):
             print('Game Over')
             Menu(self.game)
 
-    def atack(self, enemy):
+    def attack(self, enemy):
         enemy.calc_blockers()
-        for atacking_creature in self.turned:
-            creature1 = self.turned[atacking_creature]
+        for attacking_creature in self.turned:
+            creature1 = self.turned[attacking_creature]
             creature2 = enemy.blockers[creature1.id]
             print(creature1, creature2)
             if creature1 and not creature2:
-                enemy.life -= creature1.atack
+                enemy.life -= creature1.attack
                 # enemy.step = 1
             if creature1 and creature2:
                 res = combat(creature1, [creature2])
@@ -563,7 +563,7 @@ class Game(object):
         # self.all_sprites = pg.sprite.LayeredUpdates()
         self.mob = Mob(self)
         self.player = Player(self)
-        Button(self, **BUTTON['atack'])
+        Button(self, **BUTTON['attack'])
         Button(self, **BUTTON['deck'])
         Button(self, **BUTTON['block'])
         Button(self, **BUTTON['pass'])
