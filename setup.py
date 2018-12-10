@@ -78,11 +78,12 @@ class Button(pg.sprite.Sprite):
                 self.game.player.to_block(self.game.mob)
             if self.id == 'pass':
                 print('button pass')
-                if self.game.mob.step == 0:
-                    self.game.player.end_turn()
-                    self.game.mob.new_turn()
-                else:
-                    self.game.mob.step += 1
+                self.game.player.pass_the_turn()
+                # if self.game.mob.step == 0:
+                #     self.game.player.end_turn()
+                #     self.game.mob.new_turn()
+                # else:
+                #     self.game.mob.step += 1
 
     def update(self):
         self.events()
@@ -517,6 +518,11 @@ class Player(PlayerTemplate):
     def to_block(self, enemy):
         if enemy.is_your_turn:
             enemy.step += 1
+
+    def pass_the_turn(self):
+        if self.is_your_turn:
+            self.end_turn()
+            self.game.mob.new_turn()
 
 
 class Menu(object):
