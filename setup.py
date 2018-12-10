@@ -67,10 +67,7 @@ class Button(pg.sprite.Sprite):
                 self.kill()
             if self.id == 'deck':
                 print('button deck')
-                if self.game.player.can_draw:
-                    print('player.can_draw')
-                    self.game.player.draw_a_card()
-                    self.game.player.can_draw = 0
+                self.game.player.draw_a_card()
                 if not self.game.player.deck:
                     self.kill()
             if self.id == 'atack':
@@ -319,6 +316,9 @@ class PlayerTemplate(pg.sprite.Sprite):
         [self.unturn_a_card(card) for card in cards_to_unturn]
 
     def draw_a_card(self):
+        if not self.can_draw:
+            return
+        self.can_draw = 0
         print(self.name, 'draw_a_card()')
         try:
             new_card_template = self.deck.pop()
