@@ -12,7 +12,7 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 1000,
+    'width': 600,
     'height': 760,
     'bgcolor': DARKBLUE,
     'fps': 30

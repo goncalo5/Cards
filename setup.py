@@ -92,6 +92,7 @@ class Card(pg.sprite.Sprite):
         self.owner = owner
         self.template = template
         self.id = id
+        self.name = template.name
         self.attack = template.attack
         self.defense = template.defense
         self.image = template.image
@@ -132,7 +133,7 @@ class Card(pg.sprite.Sprite):
             print('press card', self.is_attacking, self.owner.is_your_turn)
 
             if self.is_in_play:
-                print(self.id, 'is_in_play', self.is_up, self.owner.name)
+                print(self.name, 'is_in_play', self.is_up, self.owner.name)
                 if self.owner.name == 'Player':
                     print('player')
                     if self.is_up == 1 and not self.is_rotating and self.owner.is_your_turn:
@@ -145,10 +146,12 @@ class Card(pg.sprite.Sprite):
                     self.game.selected_card = self
                     print(self.game.selected_card.blockers)
                 # select blockers
-                if self.is_up == 1 and self.owner.name == 'Player':
+                if self.is_up == 1 and self.owner.name == 'Player' and not self.owner.is_your_turn:
                     print(self.id, 'block')
                     try:
                         self.game.selected_card.blockers.append(self)
+                        print('selected_card', self.game.selected_card.name)
+                        print('blockers', self.game.selected_card.blockers)
                     except AttributeError:
                         print('please insert the attacking to block first')
             if self.is_in_hand:
@@ -188,6 +191,7 @@ class Card(pg.sprite.Sprite):
             self.is_moving = 0
 
     def rotate(self):
+        print('rotate()')
         self.image = pg.transform.rotate(self.image, 90 * self.is_up)
         self.rect.y += (self.rect.height - self.rect.width) * self.is_up
         self.is_up *= -1
@@ -271,10 +275,10 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = self.settings['pos']
 
-        self.hand = {}
-        self.in_play = {}
-        self.turned = {}
-        self.attacking = {}
+        self.hand = set()
+        self.in_play = set()
+        self.turned = set()
+        self.attacking = set()
         self.available_pos = [0] * 5
         self.card_id = 0
         self.wait = 1
@@ -290,7 +294,11 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.step = 1
         self.wait = 1
         self.card_to_play = None
+        self.game.selected_card = None
+        for card in self.game.cards:
+            card.blockers = []
         cards_to_unturn = []
+        self.blockers = {}
         for turned_card in self.turned:
             cards_to_unturn.append(turned_card)
         [self.unturn_a_card(card) for card in cards_to_unturn]
@@ -316,16 +324,17 @@ class PlayerTemplate(pg.sprite.Sprite):
 
         target_pos[0] += CARD['size'][1] * offset
         new_card.move_to_pos(target_pos)
-        self.hand[new_card.id] = new_card
-        self.card_to_play = self.hand[new_card.id]
-        self.card_id += 1
+        self.hand.add(new_card)
+        self.card_to_play = new_card
+        # self.card_id += 1
 
     def play_a_card(self, card):
-        print(self.name, 'play_a_card()')
-        if type(card) not in [str, int]:
-            card = card.id
+        print(self.name, 'play_a_card()', self.hand, card, card in self.hand)
+        # if type(card) not in [str, int]:
+        #     card = card.id
         try:
-            card_to_play = self.hand.pop(card)
+            self.hand.remove(card)
+            card_to_play = card
         except KeyError:
             return
         card_to_play.is_moving = True
@@ -333,7 +342,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         card_to_play.is_in_play = 1
         if card_to_play is None:
             return
-        self.in_play[card_to_play.id] = card_to_play
+        self.in_play.add(card_to_play)
         card_to_play.image = pg.transform.rotate(card_to_play.image, self.init_rotate_angle)
         card_to_play.current_angle = self.init_rotate_angle
 
@@ -342,26 +351,28 @@ class PlayerTemplate(pg.sprite.Sprite):
         card_to_play.target_pos = target_pos
 
     def turn_a_card(self, card):
-        print(self.name, 'turn_a_card()')
-        if type(card) not in [str, int]:
-            card = card.id
+        print(self.name, 'turn_a_card()', card, card.name)
+        # if type(card) not in [str, int]:
+        #     card = card.id
         try:
-            card_to_turn = self.in_play.pop(card)
+            card_to_turn = card
+            self.in_play.remove(card)
         except KeyError:
             return
         if card_to_turn is None:
             return
-        self.turned[card_to_turn.id] = card_to_turn
+        self.turned.add(card_to_turn)
         card_to_turn.rotate_to_angle(self.init_rotate_angle + 90)
 
     def unturn_a_card(self, card):
         print(self.name, 'unturn_a_card()', self.turned, card)
-        if type(card) not in [str, int]:
-            card = card.id
+        # if type(card) not in [str, int]:
+        #     card = card.id
         if not self.is_your_turn:
             return
-        new_card = self.turned.pop(card)
-        self.in_play[new_card.id] = new_card
+        new_card = card
+        self.turned.remove(card)
+        self.in_play.add(new_card)
         new_card.rotate_to_angle(self.init_rotate_angle)
 
     def end_turn(self):
@@ -386,7 +397,7 @@ class Mob(PlayerTemplate):
         print('mob attack_the_player()', self.turned)
         attacking_cards_to_pop = []
         blocking_cards_to_pop = []
-        for attacking_creature in self.game.mob.turned.values():
+        for attacking_creature in self.game.mob.turned:
             print('attacking_creature', attacking_creature, attacking_creature.blockers)
             if len(attacking_creature.blockers) == 0:
                 self.game.player.life -= attacking_creature.attack
@@ -407,18 +418,18 @@ class Mob(PlayerTemplate):
         print('attacking_cards_to_pop', attacking_cards_to_pop)
         for attacking in attacking_cards_to_pop:
             print(attacking, attacking.id)
-            self.game.mob.turned.pop(attacking.id)
-        print('blocking_cards_to_pop', blocking_cards_to_pop)
+            self.game.mob.turned.remove(attacking)
+        print('blocking_cards_to_pop', blocking_cards_to_pop, self.game.player.in_play)
         for blocking in blocking_cards_to_pop:
-            print(blocking, blocking.id, self.game.player.in_play)
-            self.game.player.in_play.pop(blocking.id)
+            print(blocking.name, self.game.player.in_play, blocking in self.game.player.in_play)
+            self.game.player.in_play.remove(blocking)
 
     def calc_blockers(self):
         self.blockers = {}
         for attacker in self.game.player.turned:
             try:
                 self.blockers[attacker] = self.in_play.pop()
-            except TypeError:
+            except KeyError:
                 self.blockers[attacker] = None
 
     def update(self):
@@ -432,7 +443,7 @@ class Mob(PlayerTemplate):
             self.step += 1
 
         if self.step == 1:
-            print('step', self.step, self.game.player.in_play)
+            # print('step', self.step, self.game.player.in_play)
 
             self.draw_a_card()
             try:
@@ -441,25 +452,23 @@ class Mob(PlayerTemplate):
                 print('cant buy, deck is empty')
             self.wait = 0
         if self.step == 2:
-            print('step', self.step, self.game.player.in_play)
+            # print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 self.wait = 1
                 try:
-                    self.play_a_card(self.card_to_play.id)
+                    self.play_a_card(self.card_to_play)
                 except AttributeError:
                     print(self.name, 'cant buy more cards, deck is empty')
             if self.card_to_play is None or not self.card_to_play.is_moving:
-                for turned_card in self.in_play.values():
+                for turned_card in self.in_play:
                     print('turned_card.is_moving', turned_card.is_moving)
                     if turned_card.is_moving:
-                        print(8888888)
                         print(turned_card, 'is_moving')
                         break
                 else:  # if no break
-                    print(777777)
                     self.wait = 0
         if self.step == 3:
-            print('step', self.step, self.game.player.in_play)
+            # print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 to_turn = self.in_play.copy()
                 print(to_turn)
@@ -470,7 +479,7 @@ class Mob(PlayerTemplate):
             if not self.game.player.in_play:
                 self.wait = 0
         if self.step == 4:
-            print('step', self.step, self.game.player.in_play)
+            # print('step', self.step, self.game.player.in_play)
             self.attack_the_player()
             self.end_turn()
             self.game.player.new_turn()
@@ -505,11 +514,13 @@ class Player(PlayerTemplate):
     def to_attack(self, enemy):
         enemy.calc_blockers()
         for attacking_creature in self.turned:
-            creature1 = self.turned[attacking_creature]
-            creature2 = enemy.blockers[creature1.id]
+            creature1 = attacking_creature
+            print('blockers', enemy.blockers)
+            creature2 = enemy.blockers.get(creature1)
             print(creature1, creature2)
             if creature1 and not creature2:
                 enemy.life -= creature1.attack
+                print('enemy.life', enemy.life)
                 # enemy.step = 1
             if creature1 and creature2:
                 res = combat(creature1, [creature2])
