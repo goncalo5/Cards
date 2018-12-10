@@ -94,7 +94,8 @@ class Button(pg.sprite.Sprite):
                 self.game.mob.new_turn()
             if self.id == 'block':
                 print('button block')
-                self.game.mob.step += 1
+                if self.game.mob.is_your_turn:
+                    self.game.mob.step += 1
             if self.id == 'pass':
                 print('button pass')
                 if self.game.mob.step == 0:
