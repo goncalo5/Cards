@@ -72,7 +72,7 @@ class Button(pg.sprite.Sprite):
                     self.kill()
             if self.id == 'attack':
                 print('button attack')
-                self.game.player.attack(self.game.mob)
+                self.game.player.to_attack(self.game.mob)
             if self.id == 'block':
                 print('button block')
                 self.game.player.to_block(self.game.mob)
@@ -495,7 +495,7 @@ class Player(PlayerTemplate):
             print('Game Over')
             Menu(self.game)
 
-    def attack(self, enemy):
+    def to_attack(self, enemy):
         enemy.calc_blockers()
         for attacking_creature in self.turned:
             creature1 = self.turned[attacking_creature]
