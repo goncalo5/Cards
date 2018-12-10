@@ -79,11 +79,6 @@ class Button(pg.sprite.Sprite):
             if self.id == 'pass':
                 print('button pass')
                 self.game.player.pass_the_turn()
-                # if self.game.mob.step == 0:
-                #     self.game.player.end_turn()
-                #     self.game.mob.new_turn()
-                # else:
-                #     self.game.mob.step += 1
 
     def update(self):
         self.events()
@@ -252,8 +247,8 @@ class TemplateCards(object):
 
         cls.ze_manel = TemplateCard(**CARDS['ze_manel'])
         cls.fire_salamander = TemplateCard(**CARDS['fire_salamander'])
-        # cls.bird = TemplateCard(**CARDS['bird'])
-        # cls.bird_of_prey = TemplateCard(**CARDS['bird_of_prey'])
+        cls.bird = TemplateCard(**CARDS['bird'])
+        cls.bird_of_prey = TemplateCard(**CARDS['bird_of_prey'])
         # cls.war_horse = TemplateCard(**CARDS['war_horse'])
         # cls.snake_constrictor = TemplateCard(**CARDS['snake_constrictor'])
         # cls.socket_man = TemplateCard(**CARDS['socket_man'])
@@ -280,6 +275,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.in_play = {}
         self.turned = {}
         self.attacking = {}
+        self.available_pos = [0] * 5
         self.card_id = 0
         self.wait = 1
         self.step = 0
@@ -310,7 +306,15 @@ class PlayerTemplate(pg.sprite.Sprite):
             return
         new_card = Card(self.game, self, new_card_template, self.card_id)
         target_pos = list(PLAYER['hand']['pos'])
-        target_pos[0] += CARD['size'][1] * new_card.id
+
+        print('self.available_pos', self.available_pos)
+        offset = self.available_pos.index(0)
+        self.available_pos[offset] = 1
+        new_card.relative_pos = offset
+        print('self.available_pos', self.available_pos)
+        print('offset', offset)
+
+        target_pos[0] += CARD['size'][1] * offset
         new_card.move_to_pos(target_pos)
         self.hand[new_card.id] = new_card
         self.card_to_play = self.hand[new_card.id]
@@ -334,7 +338,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         card_to_play.current_angle = self.init_rotate_angle
 
         target_pos = list(self.settings['in_play']['pos'])
-        target_pos[0] += CARD['size'][1] * card_to_play.id
+        target_pos[0] += CARD['size'][1] * card_to_play.relative_pos
         card_to_play.target_pos = target_pos
 
     def turn_a_card(self, card):
@@ -391,12 +395,14 @@ class Mob(PlayerTemplate):
             print(res)
             if res[0] == 1:
                 attacking_creature.kill()
+                self.game.mob.available_pos[attacking_creature.relative_pos] = 0
                 attacking_cards_to_pop.append(attacking_creature)
             for blocker_i, blocker_is_dead in enumerate(res[1]):
                 print(blocker_i, blocker_is_dead)
                 if blocker_is_dead == 1:
                     blocker = attacking_creature.blockers[blocker_i]
                     blocker.kill()
+                    self.game.player.available_pos[blocker.relative_pos] = 0
                     blocking_cards_to_pop.append(blocker)
         print('attacking_cards_to_pop', attacking_cards_to_pop)
         for attacking in attacking_cards_to_pop:
@@ -478,7 +484,7 @@ class Player(PlayerTemplate):
         super(Player, self).__init__(game)
 
         self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
-                     # TemplateCards.bird, TemplateCards.bird_of_prey,
+                     TemplateCards.bird, TemplateCards.bird_of_prey,
                      # TemplateCards.war_horse, TemplateCards.snake_constrictor,
                      # TemplateCards.socket_man, TemplateCards.electric_bird,
                      # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
