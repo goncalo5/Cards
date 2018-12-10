@@ -85,7 +85,7 @@ class Button(pg.sprite.Sprite):
 
 
 class Card(pg.sprite.Sprite):
-    def __init__(self, game, owner, template, id, pos=None):
+    def __init__(self, game, owner, template, pos=None):
         self.groups = game.all_sprites, game.cards
         super(Card, self).__init__(self.groups)
         self.game = game
@@ -280,7 +280,6 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.turned = set()
         self.attacking = set()
         self.available_pos = [0] * 5
-        self.card_id = 0
         self.wait = 1
         self.step = 0
 
@@ -312,7 +311,7 @@ class PlayerTemplate(pg.sprite.Sprite):
             new_card_template = self.deck.pop()
         except IndexError:
             return
-        new_card = Card(self.game, self, new_card_template, self.card_id)
+        new_card = Card(self.game, self, new_card_template)
         target_pos = list(PLAYER['hand']['pos'])
 
         print('self.available_pos', self.available_pos)
@@ -326,12 +325,9 @@ class PlayerTemplate(pg.sprite.Sprite):
         new_card.move_to_pos(target_pos)
         self.hand.add(new_card)
         self.card_to_play = new_card
-        # self.card_id += 1
 
     def play_a_card(self, card):
         print(self.name, 'play_a_card()', self.hand, card, card in self.hand)
-        # if type(card) not in [str, int]:
-        #     card = card.id
         try:
             self.hand.remove(card)
             card_to_play = card
@@ -352,8 +348,6 @@ class PlayerTemplate(pg.sprite.Sprite):
 
     def turn_a_card(self, card):
         print(self.name, 'turn_a_card()', card, card.name)
-        # if type(card) not in [str, int]:
-        #     card = card.id
         try:
             card_to_turn = card
             self.in_play.remove(card)
@@ -366,8 +360,6 @@ class PlayerTemplate(pg.sprite.Sprite):
 
     def unturn_a_card(self, card):
         print(self.name, 'unturn_a_card()', self.turned, card)
-        # if type(card) not in [str, int]:
-        #     card = card.id
         if not self.is_your_turn:
             return
         new_card = card
