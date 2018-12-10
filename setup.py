@@ -72,23 +72,7 @@ class Button(pg.sprite.Sprite):
                     self.kill()
             if self.id == 'atack':
                 print('button atack')
-                self.game.mob.calc_blockers()
-                for atacking_creature in self.game.player.turned:
-                    creature1 = self.game.player.turned[atacking_creature]
-                    creature2 = self.game.mob.blockers[creature1.id]
-                    print(creature1, creature2)
-                    if creature1 and not creature2:
-                        self.game.mob.life -= creature1.atack
-                        # self.game.mob.step = 1
-                    if creature1 and creature2:
-                        res = combat(creature1, [creature2])
-                        print(res)
-                        if res[0]:
-                            creature1.kill()
-                        if res[1]:
-                            creature2.kill()
-                self.game.player.end_turn()
-                self.game.mob.new_turn()
+                self.game.player.atack(self.game.mob)
             if self.id == 'block':
                 print('button block')
                 if self.game.mob.is_your_turn:
@@ -316,10 +300,10 @@ class PlayerTemplate(pg.sprite.Sprite):
         [self.unturn_a_card(card) for card in cards_to_unturn]
 
     def draw_a_card(self):
+        print(self.name, 'draw_a_card()')
         if not self.can_draw:
             return
         self.can_draw = 0
-        print(self.name, 'draw_a_card()')
         try:
             new_card_template = self.deck.pop()
         except IndexError:
@@ -512,8 +496,24 @@ class Player(PlayerTemplate):
             print('Game Over')
             Menu(self.game)
 
-    def atack_the_player(self):
-        pass
+    def atack(self, enemy):
+        enemy.calc_blockers()
+        for atacking_creature in self.turned:
+            creature1 = self.turned[atacking_creature]
+            creature2 = enemy.blockers[creature1.id]
+            print(creature1, creature2)
+            if creature1 and not creature2:
+                enemy.life -= creature1.atack
+                # enemy.step = 1
+            if creature1 and creature2:
+                res = combat(creature1, [creature2])
+                print(res)
+                if res[0]:
+                    creature1.kill()
+                if res[1]:
+                    creature2.kill()
+        self.end_turn()
+        enemy.new_turn()
 
 
 class Menu(object):
