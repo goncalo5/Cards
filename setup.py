@@ -3,7 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
+from settings import DISPLAY, MENU, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(attacking_creature, blockers):
@@ -64,6 +64,7 @@ class Button(pg.sprite.Sprite):
             self.time_to_unpress = pg.time.get_ticks()
             if self.id == 'new_game':
                 self.game.new()
+                self.game.menu.kill()
                 self.kill()
             if self.id == 'deck':
                 print('button deck')
@@ -504,10 +505,12 @@ class Player(PlayerTemplate):
                      ]
 
         self.init_rotate_angle = 0
+        self.gold = PLAYER['gold']['init']
 
         self.new_turn()
 
     def update(self):
+        print(222222222)
         self.image.fill(BLACK)
         draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
         if self.life <= 0:
@@ -545,21 +548,35 @@ class Player(PlayerTemplate):
             self.game.mob.new_turn()
 
 
-class Menu(object):
+class Menu(pg.sprite.Sprite):
     def __init__(self, game):
+        self.groups = game.all_sprites
+        super(Menu, self).__init__(self.groups)
         self.game = game
+        self.image = pg.Surface((1000, 1000))
+        self.image.fill(MENU['color'])
+        self.rect = self.image.get_rect()
 
         self.clear_all()
         Button(game, **BUTTON['new_game'])
 
     def clear_all(self):
         for sprite in self.game.all_sprites:
+            if sprite is self:
+                print(11111111111111)
+                continue
             sprite.kill()
+
+    def update(self):
+        draw_text(self.image, 'gold: %s' % self.game.player.gold,
+                  PLAYER['gold']['size'], PLAYER['gold']['color'],
+                  PLAYER['gold']['pos'])
 
 
 class Game(object):
     def __init__(self):
         pg.init()
+        # self.screen = pg.display.set_mode((0, 0))
         self.screen = pg.display.set_mode((DISPLAY['width'], DISPLAY['height']))
         pg.display.set_caption(DISPLAY['title'])
         self.clock = pg.time.Clock()
@@ -572,7 +589,9 @@ class Game(object):
         self.buttons = pg.sprite.Group()
         self.cards = pg.sprite.Group()
         self.selected_card = None
-        Menu(self)
+        self.player = Player(self)
+        print(333, self.player)
+        self.menu = Menu(self)
         # self.new()
         self.run()
 
@@ -589,6 +608,7 @@ class Game(object):
         # self.all_sprites = pg.sprite.LayeredUpdates()
         self.mob = Mob(self)
         self.player = Player(self)
+        print(4444, self.player)
         Button(self, **BUTTON['attack'])
         Button(self, **BUTTON['deck'])
         Button(self, **BUTTON['block'])
@@ -639,6 +659,7 @@ class Game(object):
                                (DISPLAY['title'], self.clock.get_fps()))
         self.screen.fill(DISPLAY['bgcolor'])
         self.all_sprites.draw(self.screen)
+        # draw_text(self.screen, 'life:', 30, RED, (100, 100))
 
         pg.display.flip()
 

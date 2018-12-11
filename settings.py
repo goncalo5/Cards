@@ -13,10 +13,15 @@ YELLOW = (255, 255, 0)
 DISPLAY = {
     'title': "My Game",
     'width': 600,
-    'height': 760,
+    'height': 750,
     'bgcolor': DARKBLUE,
     'fps': 30
 }
+
+MENU = {
+    'color': LIGHTBLUE
+}
+
 BUTTON = {
     'new_game': {
         'id': 'new_game',
@@ -75,7 +80,13 @@ PLAYER = {
         'pos': (150, DISPLAY['height'] / 3),
         'max': 3
     },
-    'graveyard': {'pos': (20, 420)}
+    'graveyard': {'pos': (20, 420)},
+    'gold': {
+        'init': 100,
+        'pos': (100, 100),
+        'size': 30,
+        'color': YELLOW
+    },
 }
 
 MOB = {
