@@ -405,14 +405,16 @@ class Mob(PlayerTemplate):
             res = combat(attacking_creature, attacking_creature.blockers)
             print(res)
             if res[0] == 1:
-                attacking_creature.kill()
+                # attacking_creature.kill()
+                attacking_creature.move_to_pos(MOB['graveyard']['pos'])
                 self.game.mob.available_pos['in_play'][attacking_creature.relative_pos['in_play']] = 0
                 attacking_cards_to_pop.append(attacking_creature)
             for blocker_i, blocker_is_dead in enumerate(res[1]):
                 print(blocker_i, blocker_is_dead)
                 if blocker_is_dead == 1:
                     blocker = attacking_creature.blockers[blocker_i]
-                    blocker.kill()
+                    # blocker.kill()
+                    blocker.move_to_pos(PLAYER['graveyard']['pos'])
                     self.game.player.available_pos['in_play'][blocker.relative_pos['in_play']] = 0
                     blocking_cards_to_pop.append(blocker)
         print('attacking_cards_to_pop', attacking_cards_to_pop)

@@ -60,6 +60,7 @@ BUTTON = {
     },
 }
 
+
 # Player
 PLAYER = {
     'layer': 2,
@@ -73,7 +74,8 @@ PLAYER = {
     'in_play': {
         'pos': (150, DISPLAY['height'] / 3),
         'max': 3
-    }
+    },
+    'graveyard': {'pos': (20, 420)}
 }
 
 MOB = {
@@ -82,7 +84,8 @@ MOB = {
     'life': 10,
     'in_play': {
         'pos': (150, 10)
-    }
+    },
+    'graveyard': {'pos': (20, -200)}
 }
 
 CARD = {
