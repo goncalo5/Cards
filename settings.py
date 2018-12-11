@@ -67,10 +67,12 @@ PLAYER = {
     'pos': (10, DISPLAY['height'] - 100),
     'life': 12,
     'hand': {
-        'pos': (150, DISPLAY['height'] - 210)
+        'pos': (150, DISPLAY['height'] - 210),
+        'max': 3
     },
     'in_play': {
-        'pos': (150, DISPLAY['height'] / 3)
+        'pos': (150, DISPLAY['height'] / 3),
+        'max': 3
     }
 }
 

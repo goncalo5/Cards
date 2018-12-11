@@ -279,7 +279,9 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.in_play = set()
         self.turned = set()
         self.attacking = set()
-        self.available_pos = [0] * 5
+        self.available_pos = {
+            'hand': [0] * PLAYER['hand']['max'],
+            'in_play': [0] * PLAYER['in_play']['max']}
         self.wait = 1
         self.step = 0
 
@@ -315,9 +317,9 @@ class PlayerTemplate(pg.sprite.Sprite):
         target_pos = list(PLAYER['hand']['pos'])
 
         print('self.available_pos', self.available_pos)
-        offset = self.available_pos.index(0)
-        self.available_pos[offset] = 1
-        new_card.relative_pos = offset
+        offset = self.available_pos['hand'].index(0)
+        self.available_pos['hand'][offset] = 1
+        new_card.relative_pos = {'hand': offset, 'in_play': None}
         print('self.available_pos', self.available_pos)
         print('offset', offset)
 
@@ -339,11 +341,17 @@ class PlayerTemplate(pg.sprite.Sprite):
         if card_to_play is None:
             return
         self.in_play.add(card_to_play)
-        card_to_play.image = pg.transform.rotate(card_to_play.image, self.init_rotate_angle)
+        card_to_play.image =\
+            pg.transform.rotate(card_to_play.image, self.init_rotate_angle)
         card_to_play.current_angle = self.init_rotate_angle
 
         target_pos = list(self.settings['in_play']['pos'])
-        target_pos[0] += CARD['size'][1] * card_to_play.relative_pos
+        self.available_pos['hand'][card.relative_pos['hand']] = 0
+        card_to_play.relative_pos['hand'] = None
+        card_to_play.relative_pos['in_play'] =\
+            self.available_pos['in_play'].index(0)
+        self.available_pos['in_play'][card.relative_pos['in_play']] = 1
+        target_pos[0] += CARD['size'][1] * card_to_play.relative_pos['in_play']
         card_to_play.target_pos = target_pos
 
     def turn_a_card(self, card):
@@ -398,14 +406,14 @@ class Mob(PlayerTemplate):
             print(res)
             if res[0] == 1:
                 attacking_creature.kill()
-                self.game.mob.available_pos[attacking_creature.relative_pos] = 0
+                self.game.mob.available_pos['in_play'][attacking_creature.relative_pos['in_play']] = 0
                 attacking_cards_to_pop.append(attacking_creature)
             for blocker_i, blocker_is_dead in enumerate(res[1]):
                 print(blocker_i, blocker_is_dead)
                 if blocker_is_dead == 1:
                     blocker = attacking_creature.blockers[blocker_i]
                     blocker.kill()
-                    self.game.player.available_pos[blocker.relative_pos] = 0
+                    self.game.player.available_pos['in_play'][blocker.relative_pos['in_play']] = 0
                     blocking_cards_to_pop.append(blocker)
         print('attacking_cards_to_pop', attacking_cards_to_pop)
         for attacking in attacking_cards_to_pop:
@@ -486,6 +494,7 @@ class Player(PlayerTemplate):
 
         self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
                      TemplateCards.bird, TemplateCards.bird_of_prey,
+                     TemplateCards.ze_manel, TemplateCards.fire_salamander,
                      # TemplateCards.war_horse, TemplateCards.snake_constrictor,
                      # TemplateCards.socket_man, TemplateCards.electric_bird,
                      # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
