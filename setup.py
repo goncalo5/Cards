@@ -64,14 +64,14 @@ class Button(pg.sprite.Sprite):
             self.time_to_unpress = pg.time.get_ticks()
             if self.id == 'menu':
                 print('menu')
-                self.game.store.clear_all()
+                self.game.clear_all_sprites()
                 self.game.menu = Menu(self.game)
             if self.id == 'store':
                 print('button buy')
-                self.game.menu.clear_all()
+                self.game.clear_all_sprites()
                 self.game.store = Store(self.game)
             if self.id == 'new_game':
-                self.game.menu.clear_all()
+                self.game.clear_all_sprites()
                 self.game.combat = Combat(self.game)
                 self.game.combat.new()
             if self.id == 'deck':
@@ -608,10 +608,6 @@ class Store(pg.sprite.Sprite):
             self.game.player.gold -= card.template.prize
             self.game.player.available_cards.append(card.template)
 
-    def clear_all(self):
-        for sprite in self.game.all_sprites:
-            sprite.kill()
-
     def update(self):
         self.image.fill(STORE['color'])
         draw_text(self.image, 'gold: %s' % self.game.player.gold,
@@ -638,10 +634,6 @@ class Menu(pg.sprite.Sprite):
 
         Button(game, **BUTTON['new_game'])
         Button(game, **BUTTON['store'])
-
-    def clear_all(self):
-        for sprite in self.game.all_sprites:
-            sprite.kill()
 
     def update(self):
         draw_text(self.image, 'gold: %s' % self.game.player.gold,
@@ -672,10 +664,6 @@ class Combat(pg.sprite.Sprite):
         # Button(self.game, **BUTTON['block'])
         # Button(self.game, **BUTTON['pass'])
 
-    def end(self):
-        for sprite in self.game.all_sprites:
-            sprite.kill()
-
     def update(self):
         self.image.fill(self.color)
         draw_text(self.image, 'life: %s' % self.game.player.life,
@@ -686,12 +674,12 @@ class Combat(pg.sprite.Sprite):
                   MOB['life']['pos'])
         if self.game.player.life <= 0:
             print('Player Game Over')
-            self.game.combat.end()
+            self.game.clear_all_sprites()
             self.game.menu = Menu(self.game)
         if self.game.mob.life <= 0:
             print('Mob died Game Over')
             self.game.player.gold += MOB['reward']
-            self.game.combat.end()
+            self.game.clear_all_sprites()
             self.game.menu = Menu(self.game)
 
 
@@ -784,6 +772,10 @@ class Game(object):
         # draw_text(self.screen, 'life:', 30, RED, (100, 100))
 
         pg.display.flip()
+
+    def clear_all_sprites(self):
+        for sprite in self.all_sprites:
+            sprite.kill()
 
     def quit(self):
         self.running = False
