@@ -297,8 +297,8 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.can_draw = 1
         self.is_blocking = 0
         self.is_your_turn = 1
-        self.step = 1
-        self.wait = 1
+        self.step = 0
+        self.wait = 0
         self.card_to_play = None
         self.game.selected_card = None
         for card in self.game.cards:
@@ -319,7 +319,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         except IndexError:
             return
         new_card = Card(self.game, self, new_card_template)
-        target_pos = list(PLAYER['hand']['pos'])
+        target_pos = list(self.settings['hand']['pos'])
 
         print('self.available_pos', self.available_pos)
         offset = self.available_pos['hand'].index(0)
@@ -329,6 +329,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         print('offset', offset)
 
         target_pos[0] += CARD['size'][1] * offset
+        print('target_pos', target_pos)
         new_card.move_to_pos(target_pos)
         self.hand.add(new_card)
         self.card_to_play = new_card
@@ -451,13 +452,11 @@ class Mob(PlayerTemplate):
 
         if self.step == 1:
             # print('step', self.step, self.game.player.in_play)
-
-            self.draw_a_card()
-            try:
-                self.card_to_play.is_moving = True
-            except AttributeError:
-                print('cant buy, deck is empty')
-            self.wait = 0
+            if not self.wait:
+                self.wait = 1
+                self.draw_a_card()
+            if self.card_to_play is None or not self.card_to_play.is_moving:
+                self.wait = 0
         if self.step == 2:
             # print('step', self.step, self.game.player.in_play)
             if not self.wait:

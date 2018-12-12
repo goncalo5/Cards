@@ -107,8 +107,13 @@ MOB = {
         'color': GREEN,
         'pos': (40, 40)
     },
+    'hand': {
+        'pos': (150, -210),
+        'max': 3
+    },
     'in_play': {
-        'pos': (150, 10)
+        'pos': (150, 10),
+        'max': 3
     },
     'graveyard': {'pos': (20, -200)}
 }
