@@ -442,10 +442,10 @@ class Mob(PlayerTemplate):
         # self.image.fill(BLACK)
         # draw_text(self.image, 'life: %s' % self.life, 30, GREEN,
         #           (self.rect.width / 2, 10))
-        if self.life <= 0:
-            print('Mob died Game Over')
-            self.game.combat.end()
-            self.game.menu = Menu(self.game)
+        # if self.life <= 0:
+        #     print('Mob died Game Over')
+        #     self.game.combat.end()
+        #     self.game.menu = Menu(self.game)
         if not self.wait:
             self.step += 1
 
@@ -615,8 +615,13 @@ class Combat(pg.sprite.Sprite):
                   MOB['life']['size'], MOB['life']['color'],
                   MOB['life']['pos'])
         if self.game.player.life <= 0:
-            print('Game Over')
-            Menu(self.game)
+            print('Player Game Over')
+            self.game.combat.end()
+            self.game.menu = Menu(self.game)
+        if self.game.mob.life <= 0:
+            print('Mob died Game Over')
+            self.game.combat.end()
+            self.game.menu = Menu(self.game)
 
 
 class Game(object):
