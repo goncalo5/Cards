@@ -22,6 +22,10 @@ MENU = {
     'color': LIGHTBLUE
 }
 
+COMBAT = {
+    'color': DARKBLUE
+}
+
 BUTTON = {
     'new_game': {
         'id': 'new_game',
@@ -71,7 +75,12 @@ PLAYER = {
     'layer': 2,
     'size': (100, 30),
     'pos': (10, DISPLAY['height'] - 100),
-    'life': 12,
+    'life': {
+        'init': 12,
+        'size': 30,
+        'color': GREEN,
+        'pos': (40, 660)
+    },
     'hand': {
         'pos': (150, DISPLAY['height'] - 210),
         'max': 3
@@ -92,7 +101,7 @@ PLAYER = {
 MOB = {
     'size': (100, 30),
     'pos': (10, 10),
-    'life': 10,
+    'life': {'init': 10},
     'in_play': {
         'pos': (150, 10)
     },

@@ -3,7 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, MENU, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
+from settings import DISPLAY, MENU, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(attacking_creature, blockers):
@@ -63,7 +63,9 @@ class Button(pg.sprite.Sprite):
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
             if self.id == 'new_game':
-                self.game.new()
+                # self.game.new()
+                self.game.combat = Combat(self.game)
+                self.game.combat.new()
                 self.game.menu.kill()
                 self.kill()
             if self.id == 'deck':
@@ -270,12 +272,18 @@ class PlayerTemplate(pg.sprite.Sprite):
         super(PlayerTemplate, self).__init__(self.groups)
         self.game = game
         self.name = self.__class__.__name__
-        self.life = self.settings.get('life')
+        self.init_life = self.settings.get('life').get('init')
 
         self.image = pg.Surface(self.settings['size'])
         self.rect = self.image.get_rect()
         self.rect.topleft = self.settings['pos']
 
+        self.time_to_unpress = pg.time.get_ticks()
+
+        self.new_combat()
+
+    def new_combat(self):
+        self.life = self.init_life
         self.hand = set()
         self.in_play = set()
         self.turned = set()
@@ -285,8 +293,6 @@ class PlayerTemplate(pg.sprite.Sprite):
             'in_play': [0] * PLAYER['in_play']['max']}
         self.wait = 1
         self.step = 0
-
-        self.time_to_unpress = pg.time.get_ticks()
 
     def new_turn(self):
         print(self.name, 'new_turn()')
@@ -440,8 +446,9 @@ class Mob(PlayerTemplate):
         draw_text(self.image, 'life: %s' % self.life, 30, GREEN,
                   (self.rect.width / 2, 10))
         if self.life <= 0:
-            print('Game Over')
-            Menu(self.game)
+            print('Mob died Game Over')
+            self.game.combat.kill()
+            self.game.menu = Menu(self.game)
         if not self.wait:
             self.step += 1
 
@@ -495,6 +502,13 @@ class Player(PlayerTemplate):
         self.settings = PLAYER
         super(Player, self).__init__(game)
 
+        self.init_rotate_angle = 0
+        self.gold = PLAYER['gold']['init']
+
+        self.new_deck()
+        self.new_turn()
+
+    def new_deck(self):
         self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander,
                      TemplateCards.bird, TemplateCards.bird_of_prey,
                      TemplateCards.ze_manel, TemplateCards.fire_salamander,
@@ -504,15 +518,9 @@ class Player(PlayerTemplate):
                      # TemplateCards.electric_rat
                      ]
 
-        self.init_rotate_angle = 0
-        self.gold = PLAYER['gold']['init']
-
-        self.new_turn()
-
     def update(self):
-        print(222222222)
         self.image.fill(BLACK)
-        draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
+        # draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
         if self.life <= 0:
             print('Game Over')
             Menu(self.game)
@@ -563,7 +571,6 @@ class Menu(pg.sprite.Sprite):
     def clear_all(self):
         for sprite in self.game.all_sprites:
             if sprite is self:
-                print(11111111111111)
                 continue
             sprite.kill()
 
@@ -571,6 +578,39 @@ class Menu(pg.sprite.Sprite):
         draw_text(self.image, 'gold: %s' % self.game.player.gold,
                   PLAYER['gold']['size'], PLAYER['gold']['color'],
                   PLAYER['gold']['pos'])
+
+
+class Combat(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites
+        super(Combat, self).__init__(self.groups)
+        self.game = game
+        self.color = COMBAT['color']
+        self.image = pg.Surface((1000, 1000))
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+
+    def new(self):
+        print('new combat()')
+        self.game.mob = Mob(self.game)
+        self.game.player.new_combat()
+        self.game.player.new_deck()
+        self.game.player.new_turn()
+
+        Button(self.game, **BUTTON['attack'])
+        Button(self.game, **BUTTON['deck'])
+        Button(self.game, **BUTTON['block'])
+        Button(self.game, **BUTTON['pass'])
+
+    def end(self):
+        for sprite in self.game.all_sprites:
+            sprite.kill()
+
+    def update(self):
+        self.image.fill(self.color)
+        draw_text(self.image, 'life: %s' % self.game.player.life,
+                  PLAYER['life']['size'], PLAYER['life']['color'],
+                  PLAYER['life']['pos'])
 
 
 class Game(object):
