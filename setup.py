@@ -280,9 +280,7 @@ class PlayerTemplate(pg.sprite.Sprite):
 
         self.time_to_unpress = pg.time.get_ticks()
 
-        self.new_combat()
-
-    def new_combat(self):
+    def new_combat_template(self):
         self.life = self.init_life
         self.hand = set()
         self.in_play = set()
@@ -399,6 +397,7 @@ class Mob(PlayerTemplate):
         self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
 
         self.init_rotate_angle = 180
+        self.new_combat_template()
 
     def attack_the_player(self):
         print('mob attack_the_player()', self.turned)
@@ -505,6 +504,8 @@ class Player(PlayerTemplate):
         self.init_rotate_angle = 0
         self.gold = PLAYER['gold']['init']
 
+    def new_combat(self):
+        self.new_combat_template()
         self.new_deck()
         self.new_turn()
 
@@ -594,8 +595,6 @@ class Combat(pg.sprite.Sprite):
         print('new combat()')
         self.game.mob = Mob(self.game)
         self.game.player.new_combat()
-        self.game.player.new_deck()
-        self.game.player.new_turn()
 
         Button(self.game, **BUTTON['attack'])
         Button(self.game, **BUTTON['deck'])
