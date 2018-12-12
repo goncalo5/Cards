@@ -64,16 +64,17 @@ class Button(pg.sprite.Sprite):
             self.time_to_unpress = pg.time.get_ticks()
             if self.id == 'menu':
                 print('menu')
+                self.game.store.clear_all()
                 self.game.menu = Menu(self.game)
             if self.id == 'store':
                 print('button buy')
+                self.game.menu.clear_all()
                 self.game.store = Store(self.game)
             if self.id == 'new_game':
                 # self.game.new()
+                self.game.menu.clear_all()
                 self.game.combat = Combat(self.game)
                 self.game.combat.new()
-                self.game.menu.kill()
-                self.kill()
             if self.id == 'deck':
                 print('button deck')
                 self.game.player.draw_a_card()
@@ -97,6 +98,7 @@ class Card(pg.sprite.Sprite):
     def __init__(self, game, owner, template, pos=None):
         self.groups = game.all_sprites, game.cards
         super(Card, self).__init__(self.groups)
+        print(pos)
         self.game = game
         self.owner = owner
         self.template = template
@@ -109,8 +111,9 @@ class Card(pg.sprite.Sprite):
         self.rotate_speed = CARD['rotate_speed']
         if isinstance(self.owner, Mob):
             pos = (0, -300)
-        else:
+        elif isinstance(self.owner, Player):
             pos = BUTTON['deck']['pos']
+
         self.rect = template.load_rect(self.image, template.draw, pos)
 
         for label in ['name', 'type', 'attack', 'defense']:
@@ -118,13 +121,14 @@ class Card(pg.sprite.Sprite):
                       CARD[label]['color'], CARD[label]['pos'])
 
         self.time_to_unpress = pg.time.get_ticks()
-        self.is_in_hand = 1
+        self.is_in_hand = 0
         self.is_in_play = 0
         self.is_up = 1
         self.is_attacking = 0
         self.blockers = []
         self.is_moving = 0
         self.target_pos = pos
+        # self.rect.topleft = pos
         self.target_angle = 0
         self.current_angle = 0
         self.is_rotating = 0
@@ -139,7 +143,7 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
-            print('press card', self.is_attacking, self.owner.is_your_turn)
+            print('press card', self.is_attacking)
 
             if self.is_in_play:
                 print(self.name, 'is_in_play', self.is_up, self.owner.name)
@@ -232,6 +236,7 @@ class TemplateCard(object):
         self.attack = kwargs.get('attack')
         self.defense = kwargs.get('defense')
         self.size = kwargs.get('size')
+        self.prize = kwargs.get('prize')
 
         self.load_a_card()
 
@@ -258,17 +263,30 @@ class TemplateCards(object):
     @classmethod
     def load_all_cards(cls):
 
+        cls.all = list()
+
         cls.ze_manel = TemplateCard(**CARDS['ze_manel'])
+        cls.all.append(cls.ze_manel)
         cls.fire_salamander = TemplateCard(**CARDS['fire_salamander'])
+        cls.all.append(cls.fire_salamander)
         cls.bird = TemplateCard(**CARDS['bird'])
+        cls.all.append(cls.bird)
         cls.bird_of_prey = TemplateCard(**CARDS['bird_of_prey'])
+        cls.all.append(cls.bird_of_prey)
         # cls.war_horse = TemplateCard(**CARDS['war_horse'])
+        # cls.all.append(cls.war_horse)
         # cls.snake_constrictor = TemplateCard(**CARDS['snake_constrictor'])
+        # cls.all.append(cls.snake_constrictor)
         # cls.socket_man = TemplateCard(**CARDS['socket_man'])
+        # cls.all.append(cls.socket_man)
         # cls.electric_bird = TemplateCard(**CARDS['electric_bird'])
+        # cls.all.append(cls.electric_bird)
         # cls.electric_up_dog = TemplateCard(**CARDS['electric_up_dog'])
+        # cls.all.append(cls.electric_up_dog)
         # cls.electric_dog = TemplateCard(**CARDS['electric_dog'])
+        # cls.all.append(cls.electric_dog)
         # cls.electric_rat = TemplateCard(**CARDS['electric_rat'])
+        # cls.all.append(cls.electric_rat)
 
 
 class PlayerTemplate(pg.sprite.Sprite):
@@ -329,6 +347,7 @@ class PlayerTemplate(pg.sprite.Sprite):
             print(self.name, 'cant buy more cards, deck is empty')
             return
         new_card = Card(self.game, self, new_card_template)
+        new_card.is_in_hand = 1
         target_pos = list(self.settings['hand']['pos'])
 
         print('self.available_pos', self.available_pos)
@@ -559,20 +578,32 @@ class Store(pg.sprite.Sprite):
         self.image = pg.Surface((1000, 1000))
         self.image.fill(STORE['color'])
         self.rect = self.image.get_rect()
+        self.pos = STORE['cards']['pos']
+        self.margin = STORE['cards']['margin']
 
         # self.clear_all()
         Button(game, **BUTTON['menu'])
 
+        self.cards = list()
+        print('TemplateCards.all', TemplateCards.all)
+        for i, card in enumerate(TemplateCards.all):
+            pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i, self.pos[1])
+            self.cards.append(Card(self.game, self, card, pos))
+
     def clear_all(self):
         for sprite in self.game.all_sprites:
-            if sprite is self:
-                continue
             sprite.kill()
 
     def update(self):
         draw_text(self.image, 'gold: %s' % self.game.player.gold,
                   PLAYER['gold']['size'], PLAYER['gold']['color'],
                   PLAYER['gold']['pos'])
+
+        for i, card in enumerate(self.cards):
+            pos = (self.pos[0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
+                   self.pos[1] + CARD['size'][1] + self.margin)
+            draw_text(self.image, 'gold: %s' % card.template.prize,
+                      STORE['gold']['size'],  STORE['gold']['color'], pos)
 
 
 class Menu(pg.sprite.Sprite):
@@ -590,8 +621,6 @@ class Menu(pg.sprite.Sprite):
 
     def clear_all(self):
         for sprite in self.game.all_sprites:
-            if sprite is self:
-                continue
             sprite.kill()
 
     def update(self):
