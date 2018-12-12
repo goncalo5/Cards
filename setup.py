@@ -600,6 +600,7 @@ class Store(pg.sprite.Sprite):
             print(card_i, i, j, self.max_xi)
             pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
                    self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+            print('card', card.name, pos)
             self.cards.append(Card(self.game, self, card, pos))
 
     def buy_some_card(self, card):
@@ -689,6 +690,7 @@ class Combat(pg.sprite.Sprite):
             self.game.menu = Menu(self.game)
         if self.game.mob.life <= 0:
             print('Mob died Game Over')
+            self.game.player.gold += MOB['reward']
             self.game.combat.end()
             self.game.menu = Menu(self.game)
 

@@ -24,7 +24,7 @@ MENU = {
 STORE = {
     'color': BLUE,
     'cards': {
-        'pos': (250, 50),
+        'pos': (200, 50),
         'margin': 10
     },
     'gold': {
@@ -41,24 +41,24 @@ BUTTON = {
     'menu': {
         'id': 'menu',
         'name': 'Menu',
-        'size': (200, 100),
-        'font_size': 50,
+        'size': (150, 75),
+        'font_size': 40,
         'color': YELLOW,
         'pos': (20, 350)
     },
     'store': {
         'id': 'store',
         'name': 'Store',
-        'size': (200, 100),
-        'font_size': 50,
+        'size': (150, 75),
+        'font_size': 40,
         'color': YELLOW,
         'pos': (20, 350)
     },
     'new_game': {
         'id': 'new_game',
         'name': 'New Game',
-        'size': (200, 100),
-        'font_size': 50,
+        'size': (150, 75),
+        'font_size': 40,
         'color': YELLOW,
         'pos': (20, 200)
     },
@@ -144,7 +144,8 @@ MOB = {
         'max': 3
     },
     'graveyard': {'pos': (20, -200)},
-    'available_cards': ['ze_manel', 'fire_salamander']
+    'available_cards': ['ze_manel', 'fire_salamander'],
+    'reward': 10
 }
 
 CARD = {
