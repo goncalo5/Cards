@@ -303,8 +303,11 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.game.selected_card = None
         for card in self.game.cards:
             card.blockers = []
-        cards_to_unturn = []
         self.blockers = {}
+        self.unturn_all_cards()
+
+    def unturn_all_cards(self):
+        cards_to_unturn = []
         for turned_card in self.turned:
             cards_to_unturn.append(turned_card)
         [self.unturn_a_card(card) for card in cards_to_unturn]
@@ -317,6 +320,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         try:
             new_card_template = self.deck.pop()
         except IndexError:
+            print(self.name, 'cant buy more cards, deck is empty')
             return
         new_card = Card(self.game, self, new_card_template)
         target_pos = list(self.settings['hand']['pos'])
@@ -449,31 +453,39 @@ class Mob(PlayerTemplate):
         #     self.game.menu = Menu(self.game)
         if not self.wait:
             self.step += 1
-
         if self.step == 1:
+            # print('step', self.step, self.game.player.in_play)
+            if not self.wait:
+                self.wait = 1
+            for card in self.in_play:
+                print('card.is_moving', card.is_moving, card.name)
+                if card.is_moving:
+                    print(card, 'is_moving')
+                    break
+            else:  # if no break
+                self.wait = 0
+        if self.step == 2:
             # print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 self.wait = 1
                 self.draw_a_card()
             if self.card_to_play is None or not self.card_to_play.is_moving:
                 self.wait = 0
-        if self.step == 2:
+        if self.step == 3:
             # print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 self.wait = 1
-                try:
-                    self.play_a_card(self.card_to_play)
-                except AttributeError:
-                    print(self.name, 'cant buy more cards, deck is empty')
+                self.play_a_card(self.card_to_play)
             if self.card_to_play is None or not self.card_to_play.is_moving:
-                for turned_card in self.in_play:
-                    print('turned_card.is_moving', turned_card.is_moving)
-                    if turned_card.is_moving:
-                        print(turned_card, 'is_moving')
-                        break
-                else:  # if no break
-                    self.wait = 0
-        if self.step == 3:
+                # print('card_to_play', self.card_to_play.name)
+                # for card in self.in_play:
+                #     print('card.is_moving', card.is_moving, card.name)
+                #     if card.is_moving:
+                #         print(card, 'is_moving')
+                #         break
+                # else:  # if no break
+                self.wait = 0
+        if self.step == 4:
             # print('step', self.step, self.game.player.in_play)
             if not self.wait:
                 to_turn = self.in_play.copy()
@@ -484,7 +496,7 @@ class Mob(PlayerTemplate):
                 self.wait = 1
             if not self.game.player.in_play:
                 self.wait = 0
-        if self.step == 4:
+        if self.step == 5:
             # print('step', self.step, self.game.player.in_play)
             self.attack_the_player()
             self.end_turn()
