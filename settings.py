@@ -12,7 +12,7 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 800,
+    'width': 600,
     'height': 750,
     'bgcolor': DARKBLUE,
     'fps': 30
@@ -24,7 +24,7 @@ MENU = {
 STORE = {
     'color': BLUE,
     'cards': {
-        'pos': (300, 100),
+        'pos': (250, 50),
         'margin': 10
     },
     'gold': {

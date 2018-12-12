@@ -71,7 +71,6 @@ class Button(pg.sprite.Sprite):
                 self.game.menu.clear_all()
                 self.game.store = Store(self.game)
             if self.id == 'new_game':
-                # self.game.new()
                 self.game.menu.clear_all()
                 self.game.combat = Combat(self.game)
                 self.game.combat.new()
@@ -586,8 +585,14 @@ class Store(pg.sprite.Sprite):
 
         self.cards = list()
         print('TemplateCards.all', TemplateCards.all)
-        for i, card in enumerate(TemplateCards.all):
-            pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i, self.pos[1])
+        self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
+        self.max_xi //= (CARD['size'][0] + self.margin)
+        for card_i, card in enumerate(TemplateCards.all):
+            i = card_i % self.max_xi
+            j = card_i // self.max_xi
+            print(card_i, i, j, self.max_xi)
+            pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
+                   self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
             self.cards.append(Card(self.game, self, card, pos))
 
     def clear_all(self):
@@ -599,9 +604,13 @@ class Store(pg.sprite.Sprite):
                   PLAYER['gold']['size'], PLAYER['gold']['color'],
                   PLAYER['gold']['pos'])
 
-        for i, card in enumerate(self.cards):
+        for card_i, card in enumerate(self.cards):
+            i = card_i % self.max_xi
+            j = card_i // self.max_xi
+            # pos = (self.pos[0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
+            #        self.pos[1] + CARD['size'][1] + self.margin)
             pos = (self.pos[0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
-                   self.pos[1] + CARD['size'][1] + self.margin)
+                   self.pos[1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
             draw_text(self.image, 'gold: %s' % card.template.prize,
                       STORE['gold']['size'],  STORE['gold']['color'], pos)
 
