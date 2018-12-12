@@ -21,16 +21,35 @@ DISPLAY = {
 MENU = {
     'color': LIGHTBLUE
 }
+STORE = {
+    'color': BLUE
+}
 
 COMBAT = {
     'color': DARKBLUE
 }
 
 BUTTON = {
+    'menu': {
+        'id': 'menu',
+        'name': 'Menu',
+        'size': (200, 100),
+        'font_size': 50,
+        'color': YELLOW,
+        'pos': (20, 350)
+    },
+    'store': {
+        'id': 'store',
+        'name': 'Store',
+        'size': (200, 100),
+        'font_size': 50,
+        'color': YELLOW,
+        'pos': (20, 350)
+    },
     'new_game': {
         'id': 'new_game',
         'name': 'New Game',
-        'size': (300, 200),
+        'size': (200, 100),
         'font_size': 50,
         'color': YELLOW,
         'pos': (20, 200)

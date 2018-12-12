@@ -3,7 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, MENU, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
+from settings import DISPLAY, MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(attacking_creature, blockers):
@@ -62,6 +62,12 @@ class Button(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
+            if self.id == 'menu':
+                print('menu')
+                self.game.menu = Menu(self.game)
+            if self.id == 'store':
+                print('button buy')
+                self.game.store = Store(self.game)
             if self.id == 'new_game':
                 # self.game.new()
                 self.game.combat = Combat(self.game)
@@ -274,7 +280,7 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.name = self.__class__.__name__
         self.init_life = self.settings.get('life').get('init')
 
-        self.image = pg.Surface(self.settings['size'])
+        self.image = pg.Surface((0, 0))
         self.rect = self.image.get_rect()
         self.rect.topleft = self.settings['pos']
 
@@ -545,6 +551,30 @@ class Player(PlayerTemplate):
             self.game.mob.new_turn()
 
 
+class Store(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites
+        super(Store, self).__init__(self.groups)
+        self.game = game
+        self.image = pg.Surface((1000, 1000))
+        self.image.fill(STORE['color'])
+        self.rect = self.image.get_rect()
+
+        # self.clear_all()
+        Button(game, **BUTTON['menu'])
+
+    def clear_all(self):
+        for sprite in self.game.all_sprites:
+            if sprite is self:
+                continue
+            sprite.kill()
+
+    def update(self):
+        draw_text(self.image, 'gold: %s' % self.game.player.gold,
+                  PLAYER['gold']['size'], PLAYER['gold']['color'],
+                  PLAYER['gold']['pos'])
+
+
 class Menu(pg.sprite.Sprite):
     def __init__(self, game):
         self.groups = game.all_sprites
@@ -556,6 +586,7 @@ class Menu(pg.sprite.Sprite):
 
         # self.clear_all()
         Button(game, **BUTTON['new_game'])
+        Button(game, **BUTTON['store'])
 
     def clear_all(self):
         for sprite in self.game.all_sprites:
