@@ -172,6 +172,10 @@ class Card(pg.sprite.Sprite):
                 self.is_in_play = 1
                 self.game.player.play_a_card(self)
 
+            if self.owner.name == 'store':
+                print('buy card', self.name)
+                self.game.store.buy_some_card(self)
+
     def update(self):
         if self.is_moving:
             self.move_to_pos()
@@ -574,13 +578,14 @@ class Store(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Store, self).__init__(self.groups)
         self.game = game
+        self.name = 'store'
         self.image = pg.Surface((1000, 1000))
         self.image.fill(STORE['color'])
         self.rect = self.image.get_rect()
+        # Cards
         self.pos = STORE['cards']['pos']
         self.margin = STORE['cards']['margin']
 
-        # self.clear_all()
         Button(game, **BUTTON['menu'])
 
         self.cards = list()
@@ -595,11 +600,16 @@ class Store(pg.sprite.Sprite):
                    self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
             self.cards.append(Card(self.game, self, card, pos))
 
+    def buy_some_card(self, card):
+        if self.game.player.gold >= card.template.prize:
+            self.game.player.gold -= card.template.prize
+
     def clear_all(self):
         for sprite in self.game.all_sprites:
             sprite.kill()
 
     def update(self):
+        self.image.fill(STORE['color'])
         draw_text(self.image, 'gold: %s' % self.game.player.gold,
                   PLAYER['gold']['size'], PLAYER['gold']['color'],
                   PLAYER['gold']['pos'])
@@ -607,8 +617,6 @@ class Store(pg.sprite.Sprite):
         for card_i, card in enumerate(self.cards):
             i = card_i % self.max_xi
             j = card_i // self.max_xi
-            # pos = (self.pos[0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
-            #        self.pos[1] + CARD['size'][1] + self.margin)
             pos = (self.pos[0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
                    self.pos[1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
             draw_text(self.image, 'gold: %s' % card.template.prize,
@@ -624,7 +632,6 @@ class Menu(pg.sprite.Sprite):
         self.image.fill(MENU['color'])
         self.rect = self.image.get_rect()
 
-        # self.clear_all()
         Button(game, **BUTTON['new_game'])
         Button(game, **BUTTON['store'])
 
