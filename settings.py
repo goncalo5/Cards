@@ -79,7 +79,7 @@ PLAYER = {
         'init': 12,
         'size': 30,
         'color': GREEN,
-        'pos': (40, 660)
+        'pos': (40, 630)
     },
     'hand': {
         'pos': (150, DISPLAY['height'] - 210),
@@ -101,7 +101,12 @@ PLAYER = {
 MOB = {
     'size': (100, 30),
     'pos': (10, 10),
-    'life': {'init': 10},
+    'life': {
+        'init': 10,
+        'size': 30,
+        'color': GREEN,
+        'pos': (40, 40)
+    },
     'in_play': {
         'pos': (150, 10)
     },

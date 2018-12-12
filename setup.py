@@ -411,7 +411,6 @@ class Mob(PlayerTemplate):
             res = combat(attacking_creature, attacking_creature.blockers)
             print(res)
             if res[0] == 1:
-                # attacking_creature.kill()
                 attacking_creature.move_to_pos(MOB['graveyard']['pos'])
                 self.game.mob.available_pos['in_play'][attacking_creature.relative_pos['in_play']] = 0
                 attacking_cards_to_pop.append(attacking_creature)
@@ -419,7 +418,6 @@ class Mob(PlayerTemplate):
                 print(blocker_i, blocker_is_dead)
                 if blocker_is_dead == 1:
                     blocker = attacking_creature.blockers[blocker_i]
-                    # blocker.kill()
                     blocker.move_to_pos(PLAYER['graveyard']['pos'])
                     self.game.player.available_pos['in_play'][blocker.relative_pos['in_play']] = 0
                     blocking_cards_to_pop.append(blocker)
@@ -441,12 +439,12 @@ class Mob(PlayerTemplate):
                 self.blockers[attacker] = None
 
     def update(self):
-        self.image.fill(BLACK)
-        draw_text(self.image, 'life: %s' % self.life, 30, GREEN,
-                  (self.rect.width / 2, 10))
+        # self.image.fill(BLACK)
+        # draw_text(self.image, 'life: %s' % self.life, 30, GREEN,
+        #           (self.rect.width / 2, 10))
         if self.life <= 0:
             print('Mob died Game Over')
-            self.game.combat.kill()
+            self.game.combat.end()
             self.game.menu = Menu(self.game)
         if not self.wait:
             self.step += 1
@@ -519,12 +517,12 @@ class Player(PlayerTemplate):
                      # TemplateCards.electric_rat
                      ]
 
-    def update(self):
-        self.image.fill(BLACK)
+    # def update(self):
+    #     self.image.fill(BLACK)
         # draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
-        if self.life <= 0:
-            print('Game Over')
-            Menu(self.game)
+        # if self.life <= 0:
+        #     print('Game Over')
+        #     Menu(self.game)
 
     def to_attack(self, enemy):
         enemy.calc_blockers()
@@ -566,7 +564,7 @@ class Menu(pg.sprite.Sprite):
         self.image.fill(MENU['color'])
         self.rect = self.image.get_rect()
 
-        self.clear_all()
+        # self.clear_all()
         Button(game, **BUTTON['new_game'])
 
     def clear_all(self):
@@ -596,10 +594,13 @@ class Combat(pg.sprite.Sprite):
         self.game.mob = Mob(self.game)
         self.game.player.new_combat()
 
-        Button(self.game, **BUTTON['attack'])
-        Button(self.game, **BUTTON['deck'])
-        Button(self.game, **BUTTON['block'])
-        Button(self.game, **BUTTON['pass'])
+        self.buttons = set()
+        for button_name in ['attack', 'deck', 'block', 'pass']:
+            self.buttons.add(Button(self.game, **BUTTON[button_name]))
+        # Button(self.game, **BUTTON['attack'])
+        # Button(self.game, **BUTTON['deck'])
+        # Button(self.game, **BUTTON['block'])
+        # Button(self.game, **BUTTON['pass'])
 
     def end(self):
         for sprite in self.game.all_sprites:
@@ -610,6 +611,12 @@ class Combat(pg.sprite.Sprite):
         draw_text(self.image, 'life: %s' % self.game.player.life,
                   PLAYER['life']['size'], PLAYER['life']['color'],
                   PLAYER['life']['pos'])
+        draw_text(self.image, 'life: %s' % self.game.mob.life,
+                  MOB['life']['size'], MOB['life']['color'],
+                  MOB['life']['pos'])
+        if self.game.player.life <= 0:
+            print('Game Over')
+            Menu(self.game)
 
 
 class Game(object):
