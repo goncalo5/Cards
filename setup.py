@@ -79,7 +79,7 @@ class Button(pg.sprite.Sprite):
                 self.game.player.draw_a_card()
                 if not self.game.player.deck:
                     self.kill()
-            if self.id == 'attack':
+            if self.id == 'attack' and self.game.player.is_your_turn:
                 print('button attack')
                 self.game.player.to_attack(self.game.mob)
             if self.id == 'block':
