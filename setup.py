@@ -527,14 +527,7 @@ class Player(PlayerTemplate):
 
         self.init_rotate_angle = 0
         self.gold = PLAYER['gold']['init']
-        self.new_deck()
-
-    def new_combat(self):
-        self.new_combat_template()
-        self.new_turn()
-
-    def new_deck(self):
-        self.deck = [
+        self.available_cards = [
             # TemplateCards.ze_manel, TemplateCards.fire_salamander,
             TemplateCards.bird, TemplateCards.bird_of_prey,
             # TemplateCards.ze_manel, TemplateCards.fire_salamander,
@@ -543,6 +536,16 @@ class Player(PlayerTemplate):
             # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
             # TemplateCards.electric_rat
         ]
+
+    def new_combat(self):
+        self.new_combat_template()
+        self.new_deck()
+        self.new_turn()
+
+    def new_deck(self):
+        self.deck = []
+        for card in self.available_cards:
+            self.deck.append(card)
         random.shuffle(self.deck)
 
     def to_attack(self, enemy):
@@ -606,7 +609,7 @@ class Store(pg.sprite.Sprite):
     def buy_some_card(self, card):
         if self.game.player.gold >= card.template.prize:
             self.game.player.gold -= card.template.prize
-            self.game.player.deck.append(card.template)
+            self.game.player.available_cards.append(card.template)
 
     def clear_all(self):
         for sprite in self.game.all_sprites:
