@@ -444,13 +444,6 @@ class Mob(PlayerTemplate):
                 self.blockers[attacker] = None
 
     def update(self):
-        # self.image.fill(BLACK)
-        # draw_text(self.image, 'life: %s' % self.life, 30, GREEN,
-        #           (self.rect.width / 2, 10))
-        # if self.life <= 0:
-        #     print('Mob died Game Over')
-        #     self.game.combat.end()
-        #     self.game.menu = Menu(self.game)
         if not self.wait:
             self.step += 1
         if self.step == 1:
@@ -477,13 +470,6 @@ class Mob(PlayerTemplate):
                 self.wait = 1
                 self.play_a_card(self.card_to_play)
             if self.card_to_play is None or not self.card_to_play.is_moving:
-                # print('card_to_play', self.card_to_play.name)
-                # for card in self.in_play:
-                #     print('card.is_moving', card.is_moving, card.name)
-                #     if card.is_moving:
-                #         print(card, 'is_moving')
-                #         break
-                # else:  # if no break
                 self.wait = 0
         if self.step == 4:
             # print('step', self.step, self.game.player.in_play)
@@ -527,13 +513,6 @@ class Player(PlayerTemplate):
                      # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
                      # TemplateCards.electric_rat
                      ]
-
-    # def update(self):
-    #     self.image.fill(BLACK)
-        # draw_text(self.image, 'life: %s' % self.life, 30, GREEN, (self.rect.width / 2, 10))
-        # if self.life <= 0:
-        #     print('Game Over')
-        #     Menu(self.game)
 
     def to_attack(self, enemy):
         enemy.calc_blockers()
