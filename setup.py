@@ -319,6 +319,12 @@ class PlayerTemplate(pg.sprite.Sprite):
         self.wait = 1
         self.step = 0
 
+    def new_deck(self):
+        self.deck = []
+        for card in self.available_cards:
+            self.deck.append(card)
+        random.shuffle(self.deck)
+
     def new_turn(self):
         print(self.name, 'new_turn()')
         self.can_draw = 1
@@ -427,8 +433,10 @@ class Mob(PlayerTemplate):
         self.settings = MOB
         super(Mob, self).__init__(game)
 
-        self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander]
-        random.shuffle(self.deck)
+        self.available_cards = []
+        for card in MOB['available_cards']:
+            self.available_cards.append(getattr(TemplateCards, card))
+        self.new_deck()
 
         self.init_rotate_angle = 180
         self.new_combat_template()
@@ -535,12 +543,6 @@ class Player(PlayerTemplate):
         self.new_combat_template()
         self.new_deck()
         self.new_turn()
-
-    def new_deck(self):
-        self.deck = []
-        for card in self.available_cards:
-            self.deck.append(card)
-        random.shuffle(self.deck)
 
     def to_attack(self, enemy):
         enemy.calc_blockers()

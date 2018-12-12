@@ -143,7 +143,8 @@ MOB = {
         'pos': (150, 10),
         'max': 3
     },
-    'graveyard': {'pos': (20, -200)}
+    'graveyard': {'pos': (20, -200)},
+    'available_cards': ['ze_manel', 'fire_salamander']
 }
 
 CARD = {
