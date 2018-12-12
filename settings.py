@@ -123,6 +123,7 @@ PLAYER = {
         'size': 30,
         'color': YELLOW
     },
+    'available_cards': ['bird', 'bird_of_prey']
 }
 
 MOB = {

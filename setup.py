@@ -527,15 +527,9 @@ class Player(PlayerTemplate):
 
         self.init_rotate_angle = 0
         self.gold = PLAYER['gold']['init']
-        self.available_cards = [
-            # TemplateCards.ze_manel, TemplateCards.fire_salamander,
-            TemplateCards.bird, TemplateCards.bird_of_prey,
-            # TemplateCards.ze_manel, TemplateCards.fire_salamander,
-            # TemplateCards.war_horse, TemplateCards.snake_constrictor,
-            # TemplateCards.socket_man, TemplateCards.electric_bird,
-            # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
-            # TemplateCards.electric_rat
-        ]
+        self.available_cards = []
+        for card in PLAYER['available_cards']:
+            self.available_cards.append(getattr(TemplateCards, card))
 
     def new_combat(self):
         self.new_combat_template()
