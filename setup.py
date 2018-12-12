@@ -427,7 +427,8 @@ class Mob(PlayerTemplate):
         self.settings = MOB
         super(Mob, self).__init__(game)
 
-        self.deck = [TemplateCards.fire_salamander, TemplateCards.fire_salamander]
+        self.deck = [TemplateCards.ze_manel, TemplateCards.fire_salamander]
+        random.shuffle(self.deck)
 
         self.init_rotate_angle = 180
         self.new_combat_template()
@@ -541,6 +542,7 @@ class Player(PlayerTemplate):
                      # TemplateCards.electric_up_dog, TemplateCards.electric_dog,
                      # TemplateCards.electric_rat
                      ]
+        random.shuffle(self.deck)
 
     def to_attack(self, enemy):
         enemy.calc_blockers()
