@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from os import path
 import random
+from collections import Counter
 import pygame as pg
 
 from settings import DISPLAY, MENU, DECK_MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
@@ -588,17 +589,17 @@ class Player(PlayerTemplate):
             self.game.mob.new_turn()
 
 
-def print_all_cards(self, cards):
+def print_all_cards(self, cards, position):
     self.cards = list()
-    self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
+    self.max_xi = (DISPLAY['width'] - position[0] - self.margin)
     self.max_xi //= (CARD['size'][0] + self.margin)
     for card_i, card in enumerate(cards):
         print('card', card.name, card)
         i = card_i % self.max_xi
         j = card_i // self.max_xi
         print(card_i, i, j, self.max_xi)
-        pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
-               self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+        pos = (position[0] + (CARD['size'][0] + self.margin) * i,
+               position[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
         print('card', card.name, pos)
         self.cards.append(Card(self.game, self, card, pos))
 
@@ -618,8 +619,7 @@ class Store(pg.sprite.Sprite):
         # Cards
         self.margin = STORE['cards']['margin']
 
-        self.pos = STORE['cards']['pos']
-        print_all_cards(self, TemplateCards.all)
+        print_all_cards(self, TemplateCards.all, STORE['cards']['pos'])
 
     def buy_some_card(self, card):
         if self.game.player.gold >= card.template.prize:
@@ -635,8 +635,8 @@ class Store(pg.sprite.Sprite):
         for card_i, card in enumerate(self.cards):
             i = card_i % self.max_xi
             j = card_i // self.max_xi
-            pos = (self.pos[0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
-                   self.pos[1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+            pos = (STORE['cards']['pos'][0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
+                   STORE['cards']['pos'][1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
             draw_text(self.image, 'gold: %s' % card.template.prize,
                       STORE['gold']['size'],  STORE['gold']['color'], pos)
 
@@ -657,10 +657,11 @@ class DeckMenu(pg.sprite.Sprite):
         # Cards
         self.margin = DECK_MENU['cards']['margin']
 
-        self.pos = DECK_MENU['cards']['availables']['pos']
-        print_all_cards(self, self.game.player.available_cards)
-        self.pos = DECK_MENU['cards']['deck']['pos']
-        print_all_cards(self, self.game.player.chosen_deck)
+        print_all_cards(self, Counter(self.game.player.available_cards),
+                        DECK_MENU['cards']['availables']['pos'])
+        # print_all_cards(self, self.game.player.available_cards)
+        print_all_cards(self, self.game.player.chosen_deck,
+                        DECK_MENU['cards']['deck']['pos'])
 
     def update(self):
         draw_text(self.image, 'All available cards', DECK_MENU['text']['size'],
@@ -668,6 +669,22 @@ class DeckMenu(pg.sprite.Sprite):
                   DECK_MENU['text']['pos']['availables'])
         draw_text(self.image, 'Your deck', DECK_MENU['text']['size'],
                   DECK_MENU['text']['color'], DECK_MENU['text']['pos']['deck'])
+
+        for card_i, card in enumerate(Counter(self.game.player.available_cards).values()):
+            i = card_i % self.max_xi
+            j = card_i // self.max_xi
+            pos = (DECK_MENU['cards']['availables']['pos'][0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
+                   DECK_MENU['cards']['availables']['pos'][1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+            draw_text(self.image, 'total: %s' % card,
+                      STORE['gold']['size'],  STORE['gold']['color'], pos)
+
+        for card_i, card in enumerate(Counter(self.game.player.chosen_deck).values()):
+            i = card_i % self.max_xi
+            j = card_i // self.max_xi
+            pos = (DECK_MENU['cards']['deck']['pos'][0] + CARD['size'][0] / 2 + (CARD['size'][0] + self.margin) * i,
+                   DECK_MENU['cards']['deck']['pos'][1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+            draw_text(self.image, 'total: %s' % card,
+                      STORE['gold']['size'],  STORE['gold']['color'], pos)
 
 
 class Menu(pg.sprite.Sprite):
