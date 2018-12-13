@@ -195,6 +195,20 @@ class Card(pg.sprite.Sprite):
                     self.game.clear_all_sprites()
                     DeckMenu(self.game)
 
+        if pg.mouse.get_pressed() == (0, 0, 1):
+            print('right click')
+            if self.owner.name == 'change_deck':
+                print('remove to deck')
+                n_in_deck =\
+                    Counter(self.game.player.chosen_deck).get(self.template, 0)
+                if n_in_deck > 0:
+                    # if self.template not in self.game.player.chosen_deck:
+                    print(555555, self.game.player.chosen_deck)
+                    self.game.player.chosen_deck.remove(self.template)
+                    print(666666, self.game.player.chosen_deck)
+                    self.game.clear_all_sprites()
+                    DeckMenu(self.game)
+
     def update(self):
         if self.is_moving:
             self.move_to_pos()
