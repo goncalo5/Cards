@@ -19,9 +19,11 @@ DISPLAY = {
 }
 
 MENU = {
+    'buttons': ['new_game', 'store', 'change_deck'],
     'color': LIGHTBLUE
 }
 STORE = {
+    'buttons': ['menu'],
     'color': BLUE,
     'cards': {
         'pos': (200, 50),
@@ -30,9 +32,10 @@ STORE = {
     'gold': {
         'size': 25,
         'color': YELLOW
-    }
+    },
 }
 DECK_MENU = {
+    'buttons': ['menu'],
     'color': BLUE,
     'cards': {
         'margin': 10,
@@ -53,6 +56,7 @@ DECK_MENU = {
     }
 }
 COMBAT = {
+    'buttons': ['attack', 'deck', 'block', 'pass'],
     'color': DARKBLUE
 }
 

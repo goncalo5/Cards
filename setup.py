@@ -651,7 +651,8 @@ class DeckMenu(pg.sprite.Sprite):
         self.image.fill(DECK_MENU['color'])
         self.rect = self.image.get_rect()
 
-        Button(game, **BUTTON['menu'])
+        for button_name in DECK_MENU['buttons']:
+            Button(self.game, **BUTTON[button_name])
 
         # Cards
         self.margin = DECK_MENU['cards']['margin']
@@ -678,9 +679,8 @@ class Menu(pg.sprite.Sprite):
         self.image.fill(MENU['color'])
         self.rect = self.image.get_rect()
 
-        Button(game, **BUTTON['new_game'])
-        Button(game, **BUTTON['store'])
-        Button(game, **BUTTON['change_deck'])
+        for button_name in MENU['buttons']:
+            Button(self.game, **BUTTON[button_name])
 
     def update(self):
         draw_text(self.image, 'gold: %s' % self.game.player.gold,
@@ -703,13 +703,8 @@ class Combat(pg.sprite.Sprite):
         self.game.mob = Mob(self.game)
         self.game.player.new_combat()
 
-        self.buttons = set()
-        for button_name in ['attack', 'deck', 'block', 'pass']:
-            self.buttons.add(Button(self.game, **BUTTON[button_name]))
-        # Button(self.game, **BUTTON['attack'])
-        # Button(self.game, **BUTTON['deck'])
-        # Button(self.game, **BUTTON['block'])
-        # Button(self.game, **BUTTON['pass'])
+        for button_name in COMBAT['buttons']:
+            Button(self.game, **BUTTON[button_name])
 
     def update(self):
         self.image.fill(self.color)
