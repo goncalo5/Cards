@@ -183,8 +183,15 @@ class Card(pg.sprite.Sprite):
 
             if self.owner.name == 'change_deck':
                 print('add to deck')
-                if self.template not in self.game.player.chosen_deck:
+                n_availables =\
+                    Counter(self.game.player.available_cards).get(self.template)
+                n_in_deck =\
+                    Counter(self.game.player.chosen_deck).get(self.template, 0)
+                if n_availables > n_in_deck:
+                    # if self.template not in self.game.player.chosen_deck:
+                    print(555555, self.game.player.chosen_deck)
                     self.game.player.chosen_deck.append(self.template)
+                    print(666666, self.game.player.chosen_deck)
                     self.game.clear_all_sprites()
                     DeckMenu(self.game)
 
@@ -590,6 +597,7 @@ class Player(PlayerTemplate):
 
 
 def print_all_cards(self, cards, position):
+    print('print_all_cards()', cards)
     self.cards = list()
     self.max_xi = (DISPLAY['width'] - position[0] - self.margin)
     self.max_xi //= (CARD['size'][0] + self.margin)
@@ -660,7 +668,7 @@ class DeckMenu(pg.sprite.Sprite):
         print_all_cards(self, Counter(self.game.player.available_cards),
                         DECK_MENU['cards']['availables']['pos'])
         # print_all_cards(self, self.game.player.available_cards)
-        print_all_cards(self, self.game.player.chosen_deck,
+        print_all_cards(self, Counter(self.game.player.chosen_deck),
                         DECK_MENU['cards']['deck']['pos'])
 
     def update(self):
