@@ -32,7 +32,26 @@ STORE = {
         'color': YELLOW
     }
 }
-
+DECK_MENU = {
+    'color': BLUE,
+    'cards': {
+        'margin': 10,
+        'availables': {
+            'pos': (200, 50),
+        },
+        'deck': {
+            'pos': (200, 350),
+        },
+    },
+    'text': {
+        'size': 30,
+        'color': WHITE,
+        'pos': {
+            'availables': (300, 20),
+            'deck': (300, 320)
+        }
+    }
+}
 COMBAT = {
     'color': DARKBLUE
 }

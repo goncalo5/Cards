@@ -3,7 +3,7 @@ from os import path
 import random
 import pygame as pg
 
-from settings import DISPLAY, MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
+from settings import DISPLAY, MENU, DECK_MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(attacking_creature, blockers):
@@ -146,7 +146,7 @@ class Card(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
-            print('press card', self.is_attacking)
+            print('press card', self.is_attacking, self.owner.name)
 
             if self.is_in_play:
                 print(self.name, 'is_in_play', self.is_up, self.owner.name)
@@ -179,6 +179,13 @@ class Card(pg.sprite.Sprite):
             if self.owner.name == 'store':
                 print('buy card', self.name)
                 self.game.store.buy_some_card(self)
+
+            if self.owner.name == 'change_deck':
+                print('add to deck')
+                if self.template not in self.game.player.chosen_deck:
+                    self.game.player.chosen_deck.append(self.template)
+                    self.game.clear_all_sprites()
+                    DeckMenu(self.game)
 
     def update(self):
         if self.is_moving:
@@ -325,7 +332,7 @@ class PlayerTemplate(pg.sprite.Sprite):
 
     def new_deck(self):
         self.deck = []
-        for card in self.available_cards:
+        for card in self.chosen_deck:
             self.deck.append(card)
         random.shuffle(self.deck)
 
@@ -440,6 +447,7 @@ class Mob(PlayerTemplate):
         self.available_cards = []
         for card in MOB['available_cards']:
             self.available_cards.append(getattr(TemplateCards, card))
+        self.chosen_deck = self.available_cards.copy()
         self.new_deck()
 
         self.init_rotate_angle = 180
@@ -542,6 +550,7 @@ class Player(PlayerTemplate):
         self.available_cards = []
         for card in PLAYER['available_cards']:
             self.available_cards.append(getattr(TemplateCards, card))
+        self.chosen_deck = self.available_cards.copy()
 
     def new_combat(self):
         self.new_combat_template()
@@ -603,24 +612,13 @@ class Store(pg.sprite.Sprite):
         self.image = pg.Surface((1000, 1000))
         self.image.fill(STORE['color'])
         self.rect = self.image.get_rect()
-        # Cards
-        self.pos = STORE['cards']['pos']
-        self.margin = STORE['cards']['margin']
 
         Button(game, **BUTTON['menu'])
 
-        # self.cards = list()
-        # print('TemplateCards.all', TemplateCards.all)
-        # self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
-        # self.max_xi //= (CARD['size'][0] + self.margin)
-        # for card_i, card in enumerate(TemplateCards.all):
-        #     i = card_i % self.max_xi
-        #     j = card_i // self.max_xi
-        #     print(card_i, i, j, self.max_xi)
-        #     pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
-        #            self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
-        #     print('card', card.name, pos)
-        #     self.cards.append(Card(self.game, self, card, pos))
+        # Cards
+        self.margin = STORE['cards']['margin']
+
+        self.pos = STORE['cards']['pos']
         print_all_cards(self, TemplateCards.all)
 
     def buy_some_card(self, card):
@@ -650,27 +648,25 @@ class DeckMenu(pg.sprite.Sprite):
         self.game = game
         self.name = 'change_deck'
         self.image = pg.Surface((1000, 1000))
-        self.image.fill(STORE['color'])
+        self.image.fill(DECK_MENU['color'])
         self.rect = self.image.get_rect()
-        # Cards
-        self.pos = STORE['cards']['pos']
-        self.margin = STORE['cards']['margin']
 
         Button(game, **BUTTON['menu'])
 
-        # self.cards = list()
-        # self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
-        # self.max_xi //= (CARD['size'][0] + self.margin)
-        # for card_i, card in enumerate(self.game.player.available_cards):
-        #     print('card', card.name, card)
-        #     i = card_i % self.max_xi
-        #     j = card_i // self.max_xi
-        #     print(card_i, i, j, self.max_xi)
-        #     pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
-        #            self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
-        #     print('card', card.name, pos)
-        #     self.cards.append(Card(self.game, self, card, pos))
+        # Cards
+        self.margin = DECK_MENU['cards']['margin']
+
+        self.pos = DECK_MENU['cards']['availables']['pos']
         print_all_cards(self, self.game.player.available_cards)
+        self.pos = DECK_MENU['cards']['deck']['pos']
+        print_all_cards(self, self.game.player.chosen_deck)
+
+    def update(self):
+        draw_text(self.image, 'All available cards', DECK_MENU['text']['size'],
+                  DECK_MENU['text']['color'],
+                  DECK_MENU['text']['pos']['availables'])
+        draw_text(self.image, 'Your deck', DECK_MENU['text']['size'],
+                  DECK_MENU['text']['color'], DECK_MENU['text']['pos']['deck'])
 
 
 class Menu(pg.sprite.Sprite):
