@@ -63,9 +63,13 @@ class Button(pg.sprite.Sprite):
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
             if self.id == 'menu':
-                print('menu')
+                print('button menu')
                 self.game.clear_all_sprites()
                 self.game.menu = Menu(self.game)
+            if self.id == 'change_deck':
+                print('button change deck')
+                self.game.clear_all_sprites()
+                DeckMenu(self.game)
             if self.id == 'store':
                 print('button buy')
                 self.game.clear_all_sprites()
@@ -575,6 +579,21 @@ class Player(PlayerTemplate):
             self.game.mob.new_turn()
 
 
+def print_all_cards(self, cards):
+    self.cards = list()
+    self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
+    self.max_xi //= (CARD['size'][0] + self.margin)
+    for card_i, card in enumerate(cards):
+        print('card', card.name, card)
+        i = card_i % self.max_xi
+        j = card_i // self.max_xi
+        print(card_i, i, j, self.max_xi)
+        pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
+               self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+        print('card', card.name, pos)
+        self.cards.append(Card(self.game, self, card, pos))
+
+
 class Store(pg.sprite.Sprite):
     def __init__(self, game):
         self.groups = game.all_sprites
@@ -590,18 +609,19 @@ class Store(pg.sprite.Sprite):
 
         Button(game, **BUTTON['menu'])
 
-        self.cards = list()
-        print('TemplateCards.all', TemplateCards.all)
-        self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
-        self.max_xi //= (CARD['size'][0] + self.margin)
-        for card_i, card in enumerate(TemplateCards.all):
-            i = card_i % self.max_xi
-            j = card_i // self.max_xi
-            print(card_i, i, j, self.max_xi)
-            pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
-                   self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
-            print('card', card.name, pos)
-            self.cards.append(Card(self.game, self, card, pos))
+        # self.cards = list()
+        # print('TemplateCards.all', TemplateCards.all)
+        # self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
+        # self.max_xi //= (CARD['size'][0] + self.margin)
+        # for card_i, card in enumerate(TemplateCards.all):
+        #     i = card_i % self.max_xi
+        #     j = card_i // self.max_xi
+        #     print(card_i, i, j, self.max_xi)
+        #     pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
+        #            self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+        #     print('card', card.name, pos)
+        #     self.cards.append(Card(self.game, self, card, pos))
+        print_all_cards(self, TemplateCards.all)
 
     def buy_some_card(self, card):
         if self.game.player.gold >= card.template.prize:
@@ -623,6 +643,36 @@ class Store(pg.sprite.Sprite):
                       STORE['gold']['size'],  STORE['gold']['color'], pos)
 
 
+class DeckMenu(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites
+        super(DeckMenu, self).__init__(self.groups)
+        self.game = game
+        self.name = 'change_deck'
+        self.image = pg.Surface((1000, 1000))
+        self.image.fill(STORE['color'])
+        self.rect = self.image.get_rect()
+        # Cards
+        self.pos = STORE['cards']['pos']
+        self.margin = STORE['cards']['margin']
+
+        Button(game, **BUTTON['menu'])
+
+        # self.cards = list()
+        # self.max_xi = (DISPLAY['width'] - self.pos[0] - self.margin)
+        # self.max_xi //= (CARD['size'][0] + self.margin)
+        # for card_i, card in enumerate(self.game.player.available_cards):
+        #     print('card', card.name, card)
+        #     i = card_i % self.max_xi
+        #     j = card_i // self.max_xi
+        #     print(card_i, i, j, self.max_xi)
+        #     pos = (self.pos[0] + (CARD['size'][0] + self.margin) * i,
+        #            self.pos[1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
+        #     print('card', card.name, pos)
+        #     self.cards.append(Card(self.game, self, card, pos))
+        print_all_cards(self, self.game.player.available_cards)
+
+
 class Menu(pg.sprite.Sprite):
     def __init__(self, game):
         self.groups = game.all_sprites
@@ -634,6 +684,7 @@ class Menu(pg.sprite.Sprite):
 
         Button(game, **BUTTON['new_game'])
         Button(game, **BUTTON['store'])
+        Button(game, **BUTTON['change_deck'])
 
     def update(self):
         draw_text(self.image, 'gold: %s' % self.game.player.gold,

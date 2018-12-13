@@ -54,6 +54,14 @@ BUTTON = {
         'color': YELLOW,
         'pos': (20, 350)
     },
+    'change_deck': {
+        'id': 'change_deck',
+        'name': 'Change Deck',
+        'size': (150, 75),
+        'font_size': 30,
+        'color': YELLOW,
+        'pos': (20, 500)
+    },
     'new_game': {
         'id': 'new_game',
         'name': 'New Game',
