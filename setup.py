@@ -651,7 +651,7 @@ class Store(pg.sprite.Sprite):
         super(Store, self).__init__(self.groups)
         self.game = game
         self.name = 'store'
-        self.image = pg.Surface((1000, 1000))
+        self.image = pg.Surface((self.game.width, self.game.height))
         self.image.fill(STORE['color'])
         self.rect = self.image.get_rect()
 
@@ -689,7 +689,7 @@ class CombatMenu(pg.sprite.Sprite):
         super(CombatMenu, self).__init__(self.groups)
         self.game = game
         self.name = 'combat_menu'
-        self.image = pg.Surface((1000, 1000))
+        self.image = pg.Surface((self.game.width, self.game.height))
         self.image.fill(DECK_MENU['color'])
         self.rect = self.image.get_rect()
 
@@ -703,7 +703,7 @@ class DeckMenu(pg.sprite.Sprite):
         super(DeckMenu, self).__init__(self.groups)
         self.game = game
         self.name = 'change_deck'
-        self.image = pg.Surface((1000, 1000))
+        self.image = pg.Surface((self.game.width, self.game.height))
         self.image.fill(DECK_MENU['color'])
         self.rect = self.image.get_rect()
 
@@ -748,7 +748,7 @@ class Menu(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Menu, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface((1000, 1000))
+        self.image = pg.Surface((self.game.width, self.game.height))
         self.image.fill(MENU['color'])
         self.rect = self.image.get_rect()
 
@@ -767,7 +767,7 @@ class Combat(pg.sprite.Sprite):
         super(Combat, self).__init__(self.groups)
         self.game = game
         self.color = COMBAT['color']
-        self.image = pg.Surface((1000, 1000))
+        self.image = pg.Surface((self.game.width, self.game.height))
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
 
@@ -803,6 +803,7 @@ class Game(object):
         pg.init()
         # self.screen = pg.display.set_mode((0, 0))
         self.screen = pg.display.set_mode((DISPLAY['width'], DISPLAY['height']))
+        self.width, self.height = self.screen.get_size()
         pg.display.set_caption(DISPLAY['title'])
         self.clock = pg.time.Clock()
 
