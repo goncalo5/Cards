@@ -45,9 +45,16 @@ class Button(pg.sprite.Sprite):
         self.id = kwargs.get('id')
         self.image = pg.Surface(kwargs.get('size'))
         self.image.fill(BLACK)
-
         self.rect = self.image.get_rect()
-        self.rect.topleft = kwargs.get('pos')
+
+        screen_w, screen_h = self.game.screen.get_size()
+        print(555, screen_w)
+        pos = list(kwargs.get('pos'))
+        if pos[0] == 'right':
+            print('right')
+            pos[0] = screen_w - self.rect.width
+        print(self.id, self.rect, pos)
+        self.rect.topleft = pos
 
         pos = (self.rect.width / 2, 10)
         draw_text(self.image, kwargs.get('name'), kwargs.get('font_size'),
@@ -632,7 +639,8 @@ class Player(PlayerTemplate):
 def print_all_cards(self, cards, position):
     print('print_all_cards()', cards)
     self.cards = list()
-    self.max_xi = (DISPLAY['width'] - position[0] - self.margin)
+    width, height = self.game.screen.get_size()
+    self.max_xi = (width - position[0] - self.margin)
     self.max_xi //= (CARD['size'][0] + self.margin)
     for card_i, card in enumerate(cards):
         print('card', card.name, card)
@@ -651,7 +659,7 @@ class Store(pg.sprite.Sprite):
         super(Store, self).__init__(self.groups)
         self.game = game
         self.name = 'store'
-        self.image = pg.Surface((self.game.width, self.game.height))
+        self.image = pg.Surface(self.game.screen.get_size())
         self.image.fill(STORE['color'])
         self.rect = self.image.get_rect()
 
@@ -689,7 +697,7 @@ class CombatMenu(pg.sprite.Sprite):
         super(CombatMenu, self).__init__(self.groups)
         self.game = game
         self.name = 'combat_menu'
-        self.image = pg.Surface((self.game.width, self.game.height))
+        self.image = pg.Surface(self.game.screen.get_size())
         self.image.fill(DECK_MENU['color'])
         self.rect = self.image.get_rect()
 
@@ -703,7 +711,7 @@ class DeckMenu(pg.sprite.Sprite):
         super(DeckMenu, self).__init__(self.groups)
         self.game = game
         self.name = 'change_deck'
-        self.image = pg.Surface((self.game.width, self.game.height))
+        self.image = pg.Surface(self.game.screen.get_size())
         self.image.fill(DECK_MENU['color'])
         self.rect = self.image.get_rect()
 
@@ -748,7 +756,7 @@ class Menu(pg.sprite.Sprite):
         self.groups = game.all_sprites
         super(Menu, self).__init__(self.groups)
         self.game = game
-        self.image = pg.Surface((self.game.width, self.game.height))
+        self.image = pg.Surface(self.game.screen.get_size())
         self.image.fill(MENU['color'])
         self.rect = self.image.get_rect()
 
@@ -767,7 +775,7 @@ class Combat(pg.sprite.Sprite):
         super(Combat, self).__init__(self.groups)
         self.game = game
         self.color = COMBAT['color']
-        self.image = pg.Surface((self.game.width, self.game.height))
+        self.image = pg.Surface(self.game.screen.get_size())
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
 
@@ -803,9 +811,10 @@ class Game(object):
         pg.init()
         # self.screen = pg.display.set_mode((0, 0))
         self.screen = pg.display.set_mode((DISPLAY['width'], DISPLAY['height']))
-        self.width, self.height = self.screen.get_size()
         pg.display.set_caption(DISPLAY['title'])
         self.clock = pg.time.Clock()
+        print(dir(self.screen))
+        # self.screen.width, self.screen.height = self.screen.get_size()
 
         # variables
         self.cmd_key_down = False
@@ -865,6 +874,9 @@ class Game(object):
             if self.cmd_key_down and event.key == pg.K_q:
                 # force quit
                 quit()
+            if event.key == pg.K_a:
+                print('a')
+                self.screen.scroll(40)
 
         if event.type == pg.KEYUP:
             if event.key == 310:

@@ -11,7 +11,7 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 1280,
+    'width': 0,
     'height': 720,
     'bgcolor': DARKBLUE,
     'fps': 30
@@ -72,7 +72,8 @@ BUTTON = {
         'size': (100, 50),
         'font_size': 40,
         'color': YELLOW,
-        'pos': (DISPLAY['width'] - 100, DISPLAY['height'] - 50)
+        'pos': ('right', DISPLAY['height'] - 50)
+        # 'pos': (DISPLAY['width'] - 100, DISPLAY['height'] - 50)
     },
     'store': {
         'id': 'store',
@@ -128,7 +129,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': RED,
-        'pos': (DISPLAY['width'] - 120, DISPLAY['height'] - 100),
+        'pos': ('right', DISPLAY['height'] - 100),
     },
     'attack': {
         'id': 'attack',
@@ -136,7 +137,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': RED,
-        'pos': (DISPLAY['width'] - 120, 300),
+        'pos': ('right', 300),
     },
     'block': {
         'id': 'block',
@@ -144,7 +145,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': LIGHTBLUE,
-        'pos': (DISPLAY['width'] - 120, 400),
+        'pos': ('right', 400),
     },
     'pass': {
         'id': 'pass',
@@ -152,7 +153,7 @@ BUTTON = {
         'size': (100, 60),
         'font_size': 30,
         'color': WHITE,
-        'pos': (DISPLAY['width'] - 120, 500),
+        'pos': ('right', 500),
     },
 }
 
