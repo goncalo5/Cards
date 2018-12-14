@@ -75,7 +75,7 @@ class Button(pg.sprite.Sprite):
                 print('button buy')
                 self.game.clear_all_sprites()
                 self.game.store = Store(self.game)
-            if self.id == 'new_game':
+            if self.id == 'new_combat':
                 self.game.clear_all_sprites()
                 self.game.combat = Combat(self.game)
                 self.game.combat.new()

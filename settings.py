@@ -1,5 +1,4 @@
 
-
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -19,7 +18,7 @@ DISPLAY = {
 }
 
 MENU = {
-    'buttons': ['new_game', 'store', 'change_deck'],
+    'buttons': ['new_combat', 'store', 'change_deck'],
     'color': LIGHTBLUE
 }
 STORE = {
@@ -85,11 +84,11 @@ BUTTON = {
         'color': YELLOW,
         'pos': (20, 500)
     },
-    'new_game': {
-        'id': 'new_game',
-        'name': 'New Game',
+    'new_combat': {
+        'id': 'new_combat',
+        'name': 'New Combat',
         'size': (150, 75),
-        'font_size': 40,
+        'font_size': 30,
         'color': YELLOW,
         'pos': (20, 200)
     },
@@ -178,6 +177,25 @@ MOB = {
     'available_cards': ['ze_manel', 'fire_salamander'],
     'reward': 10
 }
+MOBS = [
+    {
+        'available_cards': {
+            'ze_manel': 1,
+            'fire_salamander': 1
+        },
+        'reward': 10
+    },
+    {
+        'available_cards': {
+            'ze_manel': 2,
+            'fire_salamander': 2
+        },
+        'reward': 20
+    },
+
+
+]
+
 
 CARD = {
     'layer': 2,
