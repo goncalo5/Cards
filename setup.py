@@ -479,6 +479,7 @@ class Mob(PlayerTemplate):
         super(Mob, self).__init__(game)
 
         self.id = int(id.split('mob')[1])
+        self.reward = MOBS[self.id]['reward']
 
         self.available_cards = Counter()
         for card, n_of_cards in MOBS[self.id]['available_cards'].items():
@@ -797,7 +798,7 @@ class Combat(pg.sprite.Sprite):
             self.game.menu = Menu(self.game)
         if self.game.mob.life <= 0:
             print('Mob died Game Over')
-            self.game.player.gold += MOB['reward']
+            self.game.player.gold += self.game.mob.reward
             self.game.clear_all_sprites()
             self.game.menu = Menu(self.game)
 

@@ -204,8 +204,6 @@ MOB = {
         'max': 3
     },
     'graveyard': {'pos': (20, -200)},
-    'available_cards': ['ze_manel', 'fire_salamander'],
-    'reward': 10
 }
 MOBS = [
     {
