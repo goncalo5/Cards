@@ -34,7 +34,7 @@ STORE = {
     },
 }
 COMBAT_MENU = {
-    'buttons': ['menu', 'mob1', 'mob2'],
+    'buttons': ['menu', 'mob0', 'mob1'],
     'color': BLUE,
 
 
@@ -98,17 +98,17 @@ BUTTON = {
         'color': YELLOW,
         'pos': (20, 200)
     },
-    'mob1': {
-        'id': 'mob1',
-        'name': 'Mob 1',
+    'mob0': {
+        'id': 'mob0',
+        'name': 'Mob 0',
         'size': (150, 75),
         'font_size': 30,
         'color': YELLOW,
         'pos': (220, 350)
     },
-    'mob2': {
-        'id': 'mob2',
-        'name': 'Mob 2',
+    'mob1': {
+        'id': 'mob1',
+        'name': 'Mob 1',
         'size': (150, 75),
         'font_size': 30,
         'color': YELLOW,

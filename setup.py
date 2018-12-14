@@ -4,7 +4,7 @@ import random
 from collections import Counter
 import pygame as pg
 
-from settings import DISPLAY, MENU, COMBAT_MENU, DECK_MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
+from settings import DISPLAY, MENU, COMBAT_MENU, DECK_MENU, STORE, COMBAT, BUTTON, PLAYER, MOBS, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(attacking_creature, blockers):
@@ -63,6 +63,7 @@ class Button(pg.sprite.Sprite):
 
         if pg.mouse.get_pressed() == (1, 0, 0):
             self.time_to_unpress = pg.time.get_ticks()
+            print('button', self.id)
             if self.id == 'menu':
                 print('button menu')
                 self.game.clear_all_sprites()
@@ -83,7 +84,7 @@ class Button(pg.sprite.Sprite):
                 print('button', self.id)
                 self.game.clear_all_sprites()
                 self.game.combat = Combat(self.game)
-                self.game.combat.new()
+                self.game.combat.new(self.id)
             if self.id == 'deck':
                 print('button deck')
                 self.game.player.draw_a_card()
@@ -470,14 +471,16 @@ class PlayerTemplate(pg.sprite.Sprite):
 
 
 class Mob(PlayerTemplate):
-    def __init__(self, game):
+    def __init__(self, game, id):
         # self.groups = game.all_sprites
         self.settings = MOB
         super(Mob, self).__init__(game)
 
+        self.id = int(id.split('mob')[1])
         self.available_cards = []
-        for card in MOB['available_cards']:
-            self.available_cards.append(getattr(TemplateCards, card))
+        for card, n_of_cards in MOBS[self.id]['available_cards'].items():
+            for i in range(n_of_cards):
+                self.available_cards.append(getattr(TemplateCards, card))
         self.chosen_deck = self.available_cards.copy()
         self.new_deck()
 
@@ -760,9 +763,9 @@ class Combat(pg.sprite.Sprite):
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
 
-    def new(self):
+    def new(self, id):
         print('new combat()')
-        self.game.mob = Mob(self.game)
+        self.game.mob = Mob(self.game, id)
         self.game.player.new_combat()
 
         for button_name in COMBAT['buttons']:
