@@ -25,8 +25,8 @@ STORE = {
     'buttons': ['menu'],
     'color': BLUE,
     'cards': {
-        'pos': (200, 50),
-        'margin': 10
+        'pos': (200, 20),
+        'margin': 5
     },
     'gold': {
         'size': 25,
@@ -43,20 +43,20 @@ DECK_MENU = {
     'buttons': ['menu'],
     'color': BLUE,
     'cards': {
-        'margin': 10,
+        'margin': 5,
         'availables': {
-            'pos': (200, 50),
+            'pos': (5, 30),
         },
         'deck': {
-            'pos': (200, 350),
+            'pos': (5, DISPLAY['height'] / 2 + 30),
         },
     },
     'text': {
-        'size': 30,
+        'size': 25,
         'color': WHITE,
         'pos': {
-            'availables': (300, 20),
-            'deck': (300, 320)
+            'availables': (200, 5),
+            'deck': (300, DISPLAY['height'] / 2)
         }
     }
 }
@@ -69,10 +69,10 @@ BUTTON = {
     'menu': {
         'id': 'menu',
         'name': 'Menu',
-        'size': (150, 75),
+        'size': (100, 50),
         'font_size': 40,
         'color': YELLOW,
-        'pos': (20, 350)
+        'pos': (DISPLAY['width'] - 100, DISPLAY['height'] - 50)
     },
     'store': {
         'id': 'store',
@@ -183,7 +183,12 @@ PLAYER = {
         'size': 30,
         'color': YELLOW
     },
-    'available_cards': {'bird': 1, 'bird_of_prey': 1}
+    'available_cards': {
+        'bird': 1,
+        'bird_of_prey': 1,
+        'ze_manel': 1,
+        'fire_salamander': 1
+    }
 }
 
 MOB = {

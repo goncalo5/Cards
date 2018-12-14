@@ -718,11 +718,6 @@ class DeckMenu(pg.sprite.Sprite):
 
         print_all_cards(self, self.game.player.chosen_deck,
                         DECK_MENU['cards']['deck']['pos'])
-        # print_all_cards(self, Counter(self.game.player.available_cards),
-        #                 DECK_MENU['cards']['availables']['pos'])
-        #
-        # print_all_cards(self, Counter(self.game.player.chosen_deck),
-        #                 DECK_MENU['cards']['deck']['pos'])
 
     def update(self):
         draw_text(self.image, 'All available cards', DECK_MENU['text']['size'],
