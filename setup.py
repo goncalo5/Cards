@@ -98,6 +98,10 @@ class Button(pg.sprite.Sprite):
             if self.id == 'pass':
                 print('button pass')
                 self.game.player.pass_the_turn()
+            if self.id == 'quit_combat':
+                print('button quit combat')
+                self.game.clear_all_sprites()
+                Menu(self.game)
 
     def update(self):
         self.events()

@@ -61,7 +61,7 @@ DECK_MENU = {
     }
 }
 COMBAT = {
-    'buttons': ['attack', 'deck', 'block', 'pass'],
+    'buttons': ['attack', 'deck', 'block', 'pass', 'quit_combat'],
     'color': DARKBLUE
 }
 
@@ -121,6 +121,14 @@ BUTTON = {
         'font_size': 40,
         'color': YELLOW,
         'pos': (20, 200)
+    },
+    'quit_combat': {
+        'id': 'quit_combat',
+        'name': 'Quit',
+        'size': (100, 60),
+        'font_size': 30,
+        'color': RED,
+        'pos': (DISPLAY['width'] - 120, DISPLAY['height'] - 100),
     },
     'attack': {
         'id': 'attack',
