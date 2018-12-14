@@ -1,5 +1,4 @@
 
-
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
@@ -12,19 +11,108 @@ YELLOW = (255, 255, 0)
 # Screen
 DISPLAY = {
     'title': "My Game",
-    'width': 760,
-    'height': 760,
+    'width': 600,
+    'height': 750,
     'bgcolor': DARKBLUE,
     'fps': 30
 }
+
+MENU = {
+    'buttons': ['combat_menu', 'store', 'change_deck'],
+    'color': LIGHTBLUE
+}
+STORE = {
+    'buttons': ['menu'],
+    'color': BLUE,
+    'cards': {
+        'pos': (200, 50),
+        'margin': 10
+    },
+    'gold': {
+        'size': 25,
+        'color': YELLOW
+    },
+}
+COMBAT_MENU = {
+    'buttons': ['menu', 'mob0', 'mob1'],
+    'color': BLUE,
+
+
+}
+DECK_MENU = {
+    'buttons': ['menu'],
+    'color': BLUE,
+    'cards': {
+        'margin': 10,
+        'availables': {
+            'pos': (200, 50),
+        },
+        'deck': {
+            'pos': (200, 350),
+        },
+    },
+    'text': {
+        'size': 30,
+        'color': WHITE,
+        'pos': {
+            'availables': (300, 20),
+            'deck': (300, 320)
+        }
+    }
+}
+COMBAT = {
+    'buttons': ['attack', 'deck', 'block', 'pass', 'quit_combat'],
+    'color': DARKBLUE
+}
+
 BUTTON = {
-    'new_game': {
-        'id': 'new_game',
-        'name': 'New Game',
-        'size': (300, 200),
-        'font_size': 50,
+    'menu': {
+        'id': 'menu',
+        'name': 'Menu',
+        'size': (150, 75),
+        'font_size': 40,
+        'color': YELLOW,
+        'pos': (20, 350)
+    },
+    'store': {
+        'id': 'store',
+        'name': 'Store',
+        'size': (150, 75),
+        'font_size': 40,
+        'color': YELLOW,
+        'pos': (20, 350)
+    },
+    'change_deck': {
+        'id': 'change_deck',
+        'name': 'Change Deck',
+        'size': (150, 75),
+        'font_size': 30,
+        'color': YELLOW,
+        'pos': (20, 500)
+    },
+    'combat_menu': {
+        'id': 'combat_menu',
+        'name': 'New Combat',
+        'size': (150, 75),
+        'font_size': 30,
         'color': YELLOW,
         'pos': (20, 200)
+    },
+    'mob0': {
+        'id': 'mob0',
+        'name': 'Mob 0',
+        'size': (150, 75),
+        'font_size': 30,
+        'color': YELLOW,
+        'pos': (220, 350)
+    },
+    'mob1': {
+        'id': 'mob1',
+        'name': 'Mob 1',
+        'size': (150, 75),
+        'font_size': 30,
+        'color': YELLOW,
+        'pos': (220, 500)
     },
     'deck': {
         'id': 'deck',
@@ -34,9 +122,17 @@ BUTTON = {
         'color': YELLOW,
         'pos': (20, 200)
     },
-    'atack': {
-        'id': 'atack',
-        'name': 'Atack',
+    'quit_combat': {
+        'id': 'quit_combat',
+        'name': 'Quit',
+        'size': (100, 60),
+        'font_size': 30,
+        'color': RED,
+        'pos': (DISPLAY['width'] - 120, DISPLAY['height'] - 100),
+    },
+    'attack': {
+        'id': 'attack',
+        'name': 'attack',
         'size': (100, 60),
         'font_size': 30,
         'color': RED,
@@ -60,28 +156,74 @@ BUTTON = {
     },
 }
 
+
 # Player
 PLAYER = {
     'layer': 2,
     'size': (100, 30),
     'pos': (10, DISPLAY['height'] - 100),
-    'life': 12,
+    'life': {
+        'init': 12,
+        'size': 30,
+        'color': GREEN,
+        'pos': (40, 630)
+    },
     'hand': {
-        'pos': (150, DISPLAY['height'] - 210)
+        'pos': (150, DISPLAY['height'] - 210),
+        'max': 3
     },
     'in_play': {
-        'pos': (150, DISPLAY['height'] / 3)
-    }
+        'pos': (150, DISPLAY['height'] / 3),
+        'max': 3
+    },
+    'graveyard': {'pos': (20, 420)},
+    'gold': {
+        'init': 100,
+        'pos': (100, 100),
+        'size': 30,
+        'color': YELLOW
+    },
+    'available_cards': {'bird': 1, 'bird_of_prey': 1}
 }
 
 MOB = {
     'size': (100, 30),
     'pos': (10, 10),
-    'life': 10,
+    'life': {
+        'init': 10,
+        'size': 30,
+        'color': GREEN,
+        'pos': (40, 40)
+    },
+    'hand': {
+        'pos': (150, -210),
+        'max': 3
+    },
     'in_play': {
-        'pos': (150, 10)
-    }
+        'pos': (150, 10),
+        'max': 3
+    },
+    'graveyard': {'pos': (20, -200)},
 }
+MOBS = [
+    {
+        'available_cards': {
+            'ze_manel': 1,
+            'fire_salamander': 1
+        },
+        'reward': 10
+    },
+    {
+        'available_cards': {
+            'ze_manel': 2,
+            'fire_salamander': 2
+        },
+        'reward': 20
+    },
+
+
+]
+
 
 CARD = {
     'layer': 2,
@@ -99,7 +241,7 @@ CARD = {
         'color': WHITE,
         'pos': (30, 140)
     },
-    'atack': {
+    'attack': {
         'color': RED,
         'pos': (80, 140)
     },
@@ -117,8 +259,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'p1_front.png',
         'size': (66, 92),
-        'atack': 2,
-        'defense': 2
+        'attack': 2,
+        'defense': 2,
+        'prize': 40
     },
     'bird_of_prey': {
         'id': 'bird_of_prey',
@@ -127,8 +270,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'ave-rapina.png',
         'size': (98, 96),
-        'atack': 0,
-        'defense': 1
+        'attack': 0,
+        'defense': 1,
+        'prize': 10
     },
     'war_horse': {
         'id': 'war_horse',
@@ -137,8 +281,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'cavalo.de.guerra.2.png',
         'size': (57, 100),
-        'atack': 2,
-        'defense': 3
+        'attack': 2,
+        'defense': 3,
+        'prize': 50
     },
     'snake_constrictor': {
         'id': 'snake_constrictor',
@@ -147,8 +292,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'cobra-constritora.6.png',
         'size': (80, 100),
-        'atack': 2,
-        'defense': 2
+        'attack': 2,
+        'defense': 2,
+        'prize': 40
     },
     'bird': {
         'id': 'bird',
@@ -157,8 +303,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'vento-08.5.png',
         'size': (102, 100),
-        'atack': 1,
-        'defense': 2
+        'attack': 1,
+        'defense': 2,
+        'prize': 30
     },
     'fire_salamander': {
         'id': 'fire_salamander',
@@ -167,8 +314,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'fogo-05.2.jpg',
         'size': (127, 74),
-        'atack': 2,
-        'defense': 1
+        'attack': 2,
+        'defense': 1,
+        'prize': 30
     },
     'socket_man': {
         'id': 'socket_man',
@@ -177,8 +325,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-02.5.png',
         'size': (101, 106),
-        'atack': 5,
-        'defense': 3
+        'attack': 5,
+        'defense': 3,
+        'prize': 80
     },
     'electric_bird': {
         'id': 'electric_bird',
@@ -187,8 +336,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-03.png',
         'size': (117, 79),
-        'atack': 3,
-        'defense': 1
+        'attack': 3,
+        'defense': 1,
+        'prize': 40
     },
     'electric_up_dog': {
         'id': 'electric_up_dog',
@@ -197,8 +347,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-04.png',
         'size': (89, 99),
-        'atack': 3,
-        'defense': 3
+        'attack': 3,
+        'defense': 3,
+        'prize': 60
     },
     'electric_dog': {
         'id': 'electric_dog',
@@ -207,8 +358,9 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-08.png',
         'size': (103, 87),
-        'atack': 3,
-        'defense': 2
+        'attack': 3,
+        'defense': 2,
+        'prize': 50
     },
     'electric_rat': {
         'id': 'electric_rat',
@@ -217,7 +369,8 @@ CARDS = {
         'img_dir': 'imgs',
         'img': 'elétrico-10.png',
         'size': (67, 100),
-        'atack': 2,
-        'defense': 1
+        'attack': 2,
+        'defense': 1,
+        'prize': 30
     },
 }
