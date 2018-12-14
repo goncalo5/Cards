@@ -18,7 +18,7 @@ DISPLAY = {
 }
 
 MENU = {
-    'buttons': ['new_combat', 'store', 'change_deck'],
+    'buttons': ['combat_menu', 'store', 'change_deck'],
     'color': LIGHTBLUE
 }
 STORE = {
@@ -32,6 +32,12 @@ STORE = {
         'size': 25,
         'color': YELLOW
     },
+}
+COMBAT_MENU = {
+    'buttons': ['menu', 'mob1', 'mob2'],
+    'color': BLUE,
+
+
 }
 DECK_MENU = {
     'buttons': ['menu'],
@@ -84,13 +90,29 @@ BUTTON = {
         'color': YELLOW,
         'pos': (20, 500)
     },
-    'new_combat': {
-        'id': 'new_combat',
+    'combat_menu': {
+        'id': 'combat_menu',
         'name': 'New Combat',
         'size': (150, 75),
         'font_size': 30,
         'color': YELLOW,
         'pos': (20, 200)
+    },
+    'mob1': {
+        'id': 'mob1',
+        'name': 'Mob 1',
+        'size': (150, 75),
+        'font_size': 30,
+        'color': YELLOW,
+        'pos': (220, 350)
+    },
+    'mob2': {
+        'id': 'mob2',
+        'name': 'Mob 2',
+        'size': (150, 75),
+        'font_size': 30,
+        'color': YELLOW,
+        'pos': (220, 500)
     },
     'deck': {
         'id': 'deck',

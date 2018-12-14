@@ -4,7 +4,7 @@ import random
 from collections import Counter
 import pygame as pg
 
-from settings import DISPLAY, MENU, DECK_MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
+from settings import DISPLAY, MENU, COMBAT_MENU, DECK_MENU, STORE, COMBAT, BUTTON, PLAYER, MOB, CARDS, CARD, BLACK, WHITE, RED, GREEN
 
 
 def combat(attacking_creature, blockers):
@@ -75,7 +75,12 @@ class Button(pg.sprite.Sprite):
                 print('button buy')
                 self.game.clear_all_sprites()
                 self.game.store = Store(self.game)
-            if self.id == 'new_combat':
+            if self.id == 'combat_menu':
+                print('button combat menu')
+                self.game.clear_all_sprites()
+                CombatMenu(self.game)
+            if self.id in COMBAT_MENU['buttons'] and self.id != 'menu':
+                print('button', self.id)
                 self.game.clear_all_sprites()
                 self.game.combat = Combat(self.game)
                 self.game.combat.new()
@@ -661,6 +666,20 @@ class Store(pg.sprite.Sprite):
                    STORE['cards']['pos'][1] + CARD['size'][1] + (CARD['size'][1] + STORE['gold']['size'] + 2 * self.margin) * j)
             draw_text(self.image, 'gold: %s' % card.template.prize,
                       STORE['gold']['size'],  STORE['gold']['color'], pos)
+
+
+class CombatMenu(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites
+        super(CombatMenu, self).__init__(self.groups)
+        self.game = game
+        self.name = 'combat_menu'
+        self.image = pg.Surface((1000, 1000))
+        self.image.fill(DECK_MENU['color'])
+        self.rect = self.image.get_rect()
+
+        for button_name in COMBAT_MENU['buttons']:
+            Button(self.game, **BUTTON[button_name])
 
 
 class DeckMenu(pg.sprite.Sprite):
