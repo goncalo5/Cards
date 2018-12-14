@@ -183,7 +183,7 @@ PLAYER = {
         'size': 30,
         'color': YELLOW
     },
-    'available_cards': ['bird', 'bird_of_prey']
+    'available_cards': {'bird': 1, 'bird_of_prey': 1}
 }
 
 MOB = {
