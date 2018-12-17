@@ -73,7 +73,6 @@ BUTTON = {
         'font_size': 40,
         'color': YELLOW,
         'pos': ('right', DISPLAY['height'] - 50)
-        # 'pos': (DISPLAY['width'] - 100, DISPLAY['height'] - 50)
     },
     'store': {
         'id': 'store',

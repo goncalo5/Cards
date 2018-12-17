@@ -221,7 +221,8 @@ class Card(pg.sprite.Sprite):
                 if n_in_deck > 0:
                     # if self.template not in self.game.player.chosen_deck:
                     print(555555, self.game.player.chosen_deck)
-                    self.game.player.chosen_deck.remove(self.template)
+                    # self.game.player.chosen_deck.remove(self.template)
+                    self.game.player.chosen_deck -= Counter([self.template])
                     print(666666, self.game.player.chosen_deck)
                     self.game.clear_all_sprites()
                     DeckMenu(self.game)
